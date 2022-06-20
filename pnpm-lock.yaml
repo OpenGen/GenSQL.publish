@@ -11,7 +11,7 @@ specifiers:
   webpack-cli: ^4.10.0
 
 dependencies:
-  '@openiql/inferenceql.components': github.com/OpenIQL/storybook/cb223957def6d2ea31a4ea99db6b54c076124f38_v2m5e27vhdewzwhryxwfaorcca
+  '@openiql/inferenceql.components': github.com/OpenIQL/storybook/6ca037733e9e8b88d95229a3ed2b0b391dca49ef_v2m5e27vhdewzwhryxwfaorcca
   prop-types: 15.8.1
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -657,7 +657,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001357
-      electron-to-chromium: 1.4.161
+      electron-to-chromium: 1.4.162
       escalade: 3.1.1
       node-releases: 2.0.5
       picocolors: 1.0.0
@@ -797,8 +797,8 @@ packages:
     resolution: {integrity: sha512-Gj9hZN3a07cbR6zviMUBOMPdWxYhbMI+x+WS0NAIu2zFZmbK8ys9R79g+iG9qLnlCwpFoaB+fKy8Pdv470GsPA==}
     dev: false
 
-  /electron-to-chromium/1.4.161:
-    resolution: {integrity: sha512-sTjBRhqh6wFodzZtc5Iu8/R95OkwaPNn7tj/TaDU5nu/5EFiQDtADGAXdR4tJcTEHlYfJpHqigzJqHvPgehP8A==}
+  /electron-to-chromium/1.4.162:
+    resolution: {integrity: sha512-JrMk3tR2rnBojfAipp9nGh/vcWyBHeNsAVBqehtk4vq0o1bE4sVw19ICeidNx3u0i2yg4X8BvyUIM/yo2vO9aA==}
     dev: true
 
   /enhanced-resolve/5.9.3:
@@ -2120,9 +2120,9 @@ packages:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
 
-  github.com/OpenIQL/storybook/cb223957def6d2ea31a4ea99db6b54c076124f38_v2m5e27vhdewzwhryxwfaorcca:
-    resolution: {tarball: https://codeload.github.com/OpenIQL/storybook/tar.gz/cb223957def6d2ea31a4ea99db6b54c076124f38}
-    id: github.com/OpenIQL/storybook/cb223957def6d2ea31a4ea99db6b54c076124f38
+  github.com/OpenIQL/storybook/6ca037733e9e8b88d95229a3ed2b0b391dca49ef_v2m5e27vhdewzwhryxwfaorcca:
+    resolution: {tarball: https://codeload.github.com/OpenIQL/storybook/tar.gz/6ca037733e9e8b88d95229a3ed2b0b391dca49ef}
+    id: github.com/OpenIQL/storybook/6ca037733e9e8b88d95229a3ed2b0b391dca49ef
     name: '@openiql/inferenceql-components'
     version: 0.0.1-alpha
     prepare: true
