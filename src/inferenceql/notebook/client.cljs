@@ -17,6 +17,5 @@
 (doseq [element (js/window.document.querySelectorAll "code.iql")]
   (let [root (react-dom/createRoot element)
         props #js {:execute execute
-                   :value (-> (.-innerHTML element)
-                              (string/trim))}]
+                   :initialQuery (string/trim (.-innerHTML element))}]
     (.render root (react/createElement components/Query props))))
