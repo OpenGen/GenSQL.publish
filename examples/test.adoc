@@ -1,0 +1,59 @@
+= InferenceQL
+:database: /Users/zane/Desktop/db.edn
+
+Welcome to the InferenceQL tutorial.
+
+WARNING: This functionality is very alpha.
+
+You can select a whole table:
+
+[,iql]
+----
+SELECT *
+FROM satellites
+----
+
+You can also select a subset of the columns:
+
+[,iql]
+----
+SELECT
+  Period_minutes,
+  Purpose
+FROM satellites
+----
+
+A subset of SQL queries are also valid InferenceQL.
+
+Now here's a similar query with some custom InferenceQL logic!
+
+[,iql]
+----
+SELECT
+  Period_minutes,
+  Class_of_Orbit,
+
+  PROBABILITY OF Period_minutes
+  UNDER satellites_model
+  GIVEN Class_of_Orbit
+  AS prob
+FROM satellites
+ORDER BY prob ASC
+----
+
+== Generating data
+
+[,iql]
+----
+SELECT
+  Purpose,
+  count(Purpose) AS count
+FROM (
+  SELECT * FROM
+    GENERATE Purpose
+    UNDER satellites_model
+  LIMIT 1000
+)
+GROUP BY Purpose
+ORDER BY count DESC
+----

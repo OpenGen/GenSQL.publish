@@ -1,0 +1,13 @@
+{:tasks {bundle:none {:task (shell "pnpm webpack ./resources/js/index.js -o resources/js --mode=development")}
+
+         bundle:default {:task (shell "pnpm webpack ./resources/js/index.js -o resources/js --mode=production")}
+
+         bundle {:depends [bundle:default]}
+
+         build {:task (shell "clj -M -m cljs.main -co build.edn -v -c")}
+
+         clean {:task (shell "rm -Rf resources/js")}
+
+         watch {:task (shell "clj -M -m cljs.main -co build.edn -v -w src -c")}
+
+         repl:cljs {:task (shell "clj -M -m cljs.main -co build.edn -v -c -r")}}}

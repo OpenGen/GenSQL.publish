@@ -1,0 +1,8 @@
+{:main inferenceql.notebook.client
+ :output-to "resources/js/index.js"
+ :output-dir "resources/js"
+ :asset-path "js"
+ :target :bundle
+ :bundle-cmd {:none ["bb" "bundle:none"]
+              :default ["bb" "bundle:default"]}
+ :closure-defines {cljs.core/*global* "window"}} ; needed for advanced
