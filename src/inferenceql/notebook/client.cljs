@@ -7,8 +7,6 @@
             [clojure.string :as string]
             [lambdaisland.fetch :as fetch]))
 
-
-
 (def schema
   (edn/read-string (io/inline-file "schema.edn")))
 
@@ -26,7 +24,9 @@
                (case status
                  200 (clj->js body)
                  400 (js/Promise.reject (js/Error. body))
-                 (do (js/alert "Unexpected internal query execution error")
+                 500 (do (js/alert "Internal query execution error")
+                         (throw response))
+                 (do (js/alert "Unhandled HTTP status code from server")
                      (throw response)))))))
 
 (def stattype->type
@@ -54,5 +54,6 @@
     (let [props #js {:execute execute
                      :initialQuery (string/trim query)
                      ;; TODO: Rename `:statType` prop
-                     :statType (comp stattype->type stattype)}]
-      (react-dom/render (react/createElement components/Query props) div))))
+                     :statType (comp stattype->type stattype)}
+          element (react/createElement components/Query props)]
+      (react-dom/render element div))))

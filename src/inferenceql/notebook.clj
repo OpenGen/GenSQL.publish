@@ -1,11 +1,12 @@
 (ns inferenceql.notebook
   (:import [clojure.lang ExceptionInfo]
-           [java.io File InputStream]
+           [java.io File InputStream PushbackReader]
            [org.jsoup Jsoup])
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
+            [clojure.stacktrace :as stacktrace]
             [cognitect.anomalies :as-alias anomalies]
             [com.stuartsierra.component :as component]
             [inferenceql.inference.gpm :as gpm]
@@ -13,13 +14,13 @@
             [inferenceql.query.permissive :as query]
             [inferenceql.query.relation :as relation]
             [reitit.ring :as ring]
+            [reitit.ring.middleware.exception :as exception]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.file :refer [wrap-file]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.format-response :refer [wrap-restful-response]]
             [ring.middleware.not-modified :refer [wrap-not-modified]]
-            [ring.middleware.refresh :refer [wrap-refresh]]
             [ring.util.response :as response]))
 
 (defn not-found-handler
@@ -109,7 +110,10 @@
 
 (def db
   (atom (edn/read {:readers gpm/readers}
-                  (java.io.PushbackReader. (io/reader "/Users/zane/Desktop/db.edn")))))
+                  (PushbackReader. (io/reader
+                                    ;; "/Users/zane/Desktop/db.edn"
+                                    "/Users/zane/projects/inferenceql.auto-modeling/data/xcat/db.edn"
+                                    )))))
 
 (defn query-handler
   [request]
@@ -125,7 +129,16 @@
          (let [{::anomalies/keys [category]} (ex-data e)]
            (case category
              ::anomalies/incorrect (response/bad-request (ex-message e))
-             {:status 500})))))
+             (throw e))))))
+
+(def exception-middleware
+  (exception/create-exception-middleware
+   (merge
+    exception/default-handlers
+    {::exception/wrap (fn [handler e request]
+                        (println "ERROR" (pr-str (:uri request)))
+                        (stacktrace/print-stack-trace e)
+                        (handler e request))})))
 
 (defn app
   [& {:keys [path]}]
@@ -142,9 +155,8 @@
                                         "md" "text/plain"}})
        (wrap-not-modified)
        (wrap-convert)
-       (wrap-transform-html)
-       ;; (wrap-refresh path)
-       )))
+       (wrap-transform-html))
+   {:middleware [exception-middleware]}))
 
 (defn jetty-server
   [& {:as opts}]
