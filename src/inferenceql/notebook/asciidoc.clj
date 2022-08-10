@@ -1,10 +1,14 @@
 (ns inferenceql.notebook.asciidoc
-  (:import [org.asciidoctor Asciidoctor$Factory]
+  (:import [inferenceql.notebook YellBlockProcessor]
+           [org.asciidoctor Asciidoctor$Factory]
            [org.jsoup Jsoup])
   (:require [com.stuartsierra.component :as component]))
 
 (defonce ^:private asciidoctor
-  (Asciidoctor$Factory/create))
+  (let [asciidoctor (Asciidoctor$Factory/create)
+        registry (.javaExtensionRegistry asciidoctor)]
+    (.block registry YellBlockProcessor)
+    asciidoctor))
 
 (defrecord Asciidoctor []
   component/Lifecycle

@@ -1,6 +1,6 @@
-{:tasks {bundle:none {:task (shell "pnpm webpack ./resources/js/index.js -o resources/js --mode=development")}
+{:tasks {bundle:none {:task (shell "pnpm rollup --config rollup.config.js -m")}
 
-         bundle:default {:task (shell "pnpm webpack ./resources/js/index.js -o resources/js --mode=production")}
+         bundle:default {:task (shell "pnpm rollup --config rollup.config.js -m")}
 
          bundle {:depends [bundle:default]}
 

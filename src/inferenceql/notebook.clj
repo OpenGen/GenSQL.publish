@@ -13,6 +13,7 @@
             [inferenceql.notebook.asciidoc :as asciidoc]
             [inferenceql.query.permissive :as query]
             [inferenceql.query.relation :as relation]
+            [instaparse.failure :as failure]
             [reitit.ring :as ring]
             [reitit.ring.middleware.exception :as exception]
             [ring.adapter.jetty :as jetty]
@@ -110,10 +111,17 @@
 
 (def db
   (atom (edn/read {:readers gpm/readers}
-                  (PushbackReader. (io/reader
-                                    ;; "/Users/zane/Desktop/db.edn"
-                                    "/Users/zane/projects/inferenceql.auto-modeling/data/xcat/db.edn"
-                                    )))))
+                    (PushbackReader. (io/reader
+                                      ;; "/Users/zane/Desktop/db.edn"
+                                      ;; "/Users/zane/projects/inferenceql.auto-modeling/data/xcat/db.edn"
+                                      "/Users/zane/Downloads/repro/db.edn"
+                                      )))
+        #_
+        (let [model (edn/read {:readers gpm/readers}
+                              (PushbackReader. (io/reader
+                                                "/Users/zane/projects/inferenceql.auto-modeling/sample.0.edn")))]
+          (-> (db/empty)
+              (db/with-model 'transactions_model model)))))
 
 (defn query-handler
   [request]
@@ -125,19 +133,28 @@
          (response/response
           {:rows (into [] relation)
            :columns columns}))
-       (catch ExceptionInfo e
-         (let [{::anomalies/keys [category]} (ex-data e)]
+       (catch ExceptionInfo ex
+         (let [{::anomalies/keys [category] :as ex-data} (ex-data ex)]
            (case category
-             ::anomalies/incorrect (response/bad-request (ex-message e))
-             (throw e))))))
+             ::anomalies/incorrect
+             (if-let [failure (:instaparse/failure ex-data)]
+               (response/bad-request (with-out-str (failure/pprint-failure failure)))
+               (response/bad-request (ex-message ex)))
+             (throw ex))))))
 
 (def exception-middleware
   (exception/create-exception-middleware
    (merge
     exception/default-handlers
-    {::exception/wrap (fn [handler e request]
+    {::exception/default (fn [exception request]
+                           {:status  500
+                            :exception (with-out-str (stacktrace/print-stack-trace exception))
+                            :uri (:uri request)
+                            :body "Internal server error"})
+     ::exception/wrap (fn [handler e request]
                         (println "ERROR" (pr-str (:uri request)))
                         (stacktrace/print-stack-trace e)
+                        (flush)
                         (handler e request))})))
 
 (defn app

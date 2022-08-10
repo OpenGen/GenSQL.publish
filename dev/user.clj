@@ -1,5 +1,6 @@
 (ns user
-  (:require [clojure.tools.namespace.repl :as repl]
+  (:require [build]
+            [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
             [inferenceql.notebook :as notebook]))
 
@@ -14,7 +15,6 @@
 
 (defn new-system
   []
-  (println "initializing new system")
   (let [handler (notebook/app :path "examples")]
     (notebook/jetty-server :handler handler :port 8080)))
 
@@ -41,6 +41,8 @@
 
 (defn reset []
   (stop)
+  (build/clean nil)
+  (build/compile nil)
   (repl/refresh :after 'user/go))
 
 (comment
@@ -49,14 +51,5 @@
   (reset)
   (stop)
   (start)
-
-
-  (do (require '[inferenceql.query.db :as db])
-      (require '[inferenceql.query.permissive :as permissive])
-
-      (let [db (-> (db/empty)
-                   (db/with-table 'satellites '[{x 0 y 1}])
-                   (atom))]
-        (permissive/query "select x from satellites limit 1" db)))
 
   ,)

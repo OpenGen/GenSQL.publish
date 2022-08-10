@@ -8,7 +8,7 @@
             [lambdaisland.fetch :as fetch]))
 
 (def schema
-  (edn/read-string (io/inline-file "schema.edn")))
+  (edn/read-string (io/inline-file "repro.schema.edn")))
 
 (enable-console-print!)
 

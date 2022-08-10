@@ -1,13 +1,11 @@
-{:paths ["src" "resources"]
+{:paths ["src" "resources" "target/classes"]
  :deps {cljs-ajax/cljs-ajax {:mvn/version "0.8.4"}
         com.cognitect/transit-clj {:mvn/version "1.0.329"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
 
-        inferenceql/inferenceql.query
-        #_{:git/url "https://github.com/InferenceQL/inferenceql.query.git"
-           :git/sha "b77fd730702e3c9c96c3a41d44246a07ed5e2628"}
-        {:local/root "../inferenceql.query"}
+        inferenceql/inferenceql.query {:local/root "../inferenceql.query"}
+        inferenceql/inferenceql.inference {:local/root "../inferenceql.inference"}
 
         lambdaisland/fetch {:mvn/version "1.0.41"}
         metosin/reitit {:mvn/version "0.5.18"}
@@ -19,5 +17,9 @@
         ring-refresh/ring-refresh {:mvn/version "0.1.2"}
         ring/ring-core {:mvn/version "1.9.5"}
         ring/ring-jetty-adapter {:mvn/version "1.9.5"}}
- :aliases {:dev {:extra-paths ["dev"]
-                 :extra-deps {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}}}
+ :aliases {:build {:extra-paths ["dev"]
+                   :extra-deps {org.clojure/tools.namespace {:mvn/version "1.3.0"}
+                                io.github.clojure/tools.build {:git/tag "v0.8.3" :git/sha "0d20256"}}}}
+ :deps/prep-lib {:alias :build
+                 :fn compile
+                 :ensure "target/classes"}}
