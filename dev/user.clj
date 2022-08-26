@@ -5,7 +5,7 @@
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
             [inferenceql.inference.gpm :as gpm]
-            [inferenceql.notebook :as notebook]))
+            [inferenceql.publish :as publish]))
 
 (def db-path "/Users/zane/Downloads/repro/db.edn")
 (def schema-path "examples/schema.edn")
@@ -31,8 +31,8 @@
 (defn new-system
   []
   (let [db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
-        handler (notebook/app :db db :path "examples" :schema-path schema-path)]
-    (notebook/jetty-server :handler handler :port 8080)))
+        handler (publish/app :db db :path "examples" :schema-path schema-path)]
+    (publish/jetty-server :handler handler :port 8080)))
 
 (defn init
   "Constructs the current development system."

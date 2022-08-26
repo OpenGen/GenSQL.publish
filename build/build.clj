@@ -24,7 +24,7 @@
 
 (def default-opts
   {:lib 'inferenceql/inferenceql.publish
-   :main 'inferenceql.notebook
+   :main 'inferenceql.publish
    :target "target"
    :clojure-src-dirs ["src"]
    :java-src-dirs ["java"]

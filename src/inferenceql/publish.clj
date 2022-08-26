@@ -1,4 +1,4 @@
-(ns inferenceql.notebook
+(ns inferenceql.publish
   (:gen-class)
   (:import [clojure.lang ExceptionInfo]
            [java.io File InputStream PushbackReader]
@@ -12,7 +12,7 @@
             [cognitect.anomalies :as-alias anomalies]
             [com.stuartsierra.component :as component]
             [inferenceql.inference.gpm :as gpm]
-            [inferenceql.notebook.asciidoc :as asciidoc]
+            [inferenceql.publish.asciidoc :as asciidoc]
             [inferenceql.query.permissive :as permissive]
             [inferenceql.query.relation :as relation]
             [inferenceql.query.strict :as strict]

@@ -1,4 +1,4 @@
-package inferenceql.notebook;
+package inferenceql.publish;
 
 import java.util.Map;
 import org.asciidoctor.Asciidoctor;

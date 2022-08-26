@@ -1,4 +1,4 @@
-{:main inferenceql.notebook.client
+{:main inferenceql.publish.client
  :output-to "resources/js/index.js"
  :output-dir "resources/js"
  :asset-path "js"

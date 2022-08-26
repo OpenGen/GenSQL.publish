@@ -1,5 +1,5 @@
-(ns inferenceql.notebook.asciidoc
-  (:import [inferenceql.notebook YellBlockProcessor]
+(ns inferenceql.publish.asciidoc
+  (:import [inferenceql.publish YellBlockProcessor]
            [org.asciidoctor Asciidoctor$Factory]
            [org.jsoup Jsoup])
   (:require [com.stuartsierra.component :as component]))

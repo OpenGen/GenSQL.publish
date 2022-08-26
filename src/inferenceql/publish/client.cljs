@@ -1,4 +1,4 @@
-(ns inferenceql.notebook.client
+(ns inferenceql.publish.client
   (:require ["@inferenceql/components" :as components]
             ["react" :as react]
             ["react-dom" :as react-dom]
