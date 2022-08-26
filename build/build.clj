@@ -18,7 +18,9 @@
 
 (defn worktree-dirty?
   []
-  (not (string/blank? (build/git-process {:git-args "status --short"}))))
+  (-> (build/git-process {:git-args "status --short"})
+      (string/blank?)
+      (not)))
 
 (def default-opts
   {:lib 'inferenceql/inferenceql.publish
