@@ -1,18 +1,21 @@
 (ns inferenceql.notebook
+  (:gen-class)
   (:import [clojure.lang ExceptionInfo]
            [java.io File InputStream PushbackReader]
            [org.jsoup Jsoup])
-  (:require [clojure.edn :as edn]
+  (:require [babashka.cli :as cli]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
-            [clojure.string :as string]
             [clojure.stacktrace :as stacktrace]
+            [clojure.string :as string]
             [cognitect.anomalies :as-alias anomalies]
             [com.stuartsierra.component :as component]
             [inferenceql.inference.gpm :as gpm]
             [inferenceql.notebook.asciidoc :as asciidoc]
-            [inferenceql.query.permissive :as query]
+            [inferenceql.query.permissive :as permissive]
             [inferenceql.query.relation :as relation]
+            [inferenceql.query.strict :as strict]
             [instaparse.failure :as failure]
             [reitit.ring :as ring]
             [reitit.ring.middleware.exception :as exception]
@@ -109,38 +112,26 @@
             (update :headers dissoc "Content-Length"))
         response))))
 
-(def db
-  (atom (edn/read {:readers gpm/readers}
-                    (PushbackReader. (io/reader
-                                      ;; "/Users/zane/Desktop/db.edn"
-                                      ;; "/Users/zane/projects/inferenceql.auto-modeling/data/xcat/db.edn"
-                                      "/Users/zane/Downloads/repro/db.edn"
-                                      )))
-        #_
-        (let [model (edn/read {:readers gpm/readers}
-                              (PushbackReader. (io/reader
-                                                "/Users/zane/projects/inferenceql.auto-modeling/sample.0.edn")))]
-          (-> (db/empty)
-              (db/with-model 'transactions_model model)))))
-
 (defn query-handler
-  [request]
-  (try (let [query (-> request
-                       (get-in [:params "query"])
-                       string/trim)
-             relation (query/query query db)
-             columns (relation/attributes relation)]
-         (response/response
-          {:rows (into [] relation)
-           :columns columns}))
-       (catch ExceptionInfo ex
-         (let [{::anomalies/keys [category] :as ex-data} (ex-data ex)]
-           (case category
-             ::anomalies/incorrect
-             (if-let [failure (:instaparse/failure ex-data)]
-               (response/bad-request (with-out-str (failure/pprint-failure failure)))
-               (response/bad-request (ex-message ex)))
-             (throw ex))))))
+  [db execute]
+  (fn [request]
+    (try (let [query (-> request
+                         (get-in [:params "query"])
+                         string/trim)
+               relation (execute query db)
+               columns (relation/attributes relation)]
+           (response/response
+            {:rows (into [] relation)
+             :columns columns}))
+         (catch ExceptionInfo ex
+           (let [{::anomalies/keys [category] :as ex-data} (ex-data ex)]
+             (case category
+               ::anomalies/incorrect
+               (let [message (if-let [failure (:instaparse/failure ex-data)]
+                               (with-out-str (failure/pprint-failure failure))
+                               (ex-message ex))]
+                 (response/bad-request {:message message}))
+               (throw ex)))))))
 
 (def exception-middleware
   (exception/create-exception-middleware
@@ -158,13 +149,16 @@
                         (handler e request))})))
 
 (defn app
-  [& {:keys [path]}]
+  [& {:keys [db path schema-path execute]}]
   (ring/ring-handler
    (ring/router
-    [["/api/query" (-> #'query-handler
+    [["/api/query" (-> (#'query-handler db execute)
                        (wrap-restful-format :formats [:json])
                        (wrap-restful-response))]
-     ["/styles/*" (ring/create-file-handler {:root "node_modules/highlight.js/styles"})]
+     ["/schema.edn" (fn [_]
+                      (-> (response/file-response schema-path)
+                          (response/content-type "application/edn")))]
+     ["/styles/*" (ring/create-resource-handler {:root "styles"})]
      ["/js/*" (ring/create-resource-handler {:root "js"})]])
    (-> #'not-found-handler
        (wrap-file path {:index-files? false})
@@ -178,3 +172,18 @@
 (defn jetty-server
   [& {:as opts}]
   (map->JettyServer opts))
+
+(defn -main
+  [& args]
+  (let [{:keys [db path schema language] :or {language "strict"}} (cli/parse-opts args)
+        execute (case (name language)
+                  "permissive" strict/query
+                  "strict" permissive/query)
+        db (atom (edn/read {:readers gpm/readers}
+                           (PushbackReader. (io/reader db))))
+        handler (app :db db
+                     :path path
+                     :schema-path schema
+                     :execute execute)
+        system (jetty-server :handler handler :port 8080)]
+    (component/start system)))

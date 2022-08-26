@@ -29,12 +29,4 @@ export default {
       'process.env.NODE_ENV': JSON.stringify('development'),
     })
   ],
-  onwarn: (warning, warn) => {
-    if (
-      warning.code === 'CIRCULAR_DEPENDENCY'
-    ) {
-      return;
-    }
-    warn();
-  },
 }
