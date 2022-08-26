@@ -4,10 +4,8 @@
         com.cognitect/transit-clj {:mvn/version "1.0.329"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
-
-        inferenceql/inferenceql.inference {:local/root "../inferenceql.inference"}
-        inferenceql/inferenceql.query {:local/root "../inferenceql.query"}
-
+        io.github.inferenceql/inferenceql.inference {:git/sha "7b20ddefebc7f6fa969aff673e49368c0d7da744"}
+        io.github.inferenceql/inferenceql.query {:git/sha "adcae9503cc40a589e8c7df0c94aa859a79e866d"}
         lambdaisland/fetch {:mvn/version "1.0.41"}
         metosin/reitit {:mvn/version "0.5.18"}
         org.asciidoctor/asciidoctorj {:mvn/version "2.5.3"}

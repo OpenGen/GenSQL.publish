@@ -1,5 +1,4 @@
 = Exploring satellite data with InferenceQL
-:database: /Users/zane/Desktop/db.edn
 
 The InferenceQL query language extends a subset of SQL.
 

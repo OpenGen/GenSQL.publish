@@ -7,6 +7,9 @@
             [inferenceql.inference.gpm :as gpm]
             [inferenceql.notebook :as notebook]))
 
+(def db-path "/Users/zane/Downloads/repro/db.edn")
+(def schema-path "examples/schema.edn")
+
 (def system nil)
 
 (defmacro with-reporting
@@ -27,10 +30,7 @@
 
 (defn new-system
   []
-  (let [db-path  "/Users/zane/Downloads/repro/db.edn"
-        schema-path "examples/schema.edn"
-        db (atom (edn/read {:readers gpm/readers}
-                           (PushbackReader. (io/reader db-path))))
+  (let [db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
         handler (notebook/app :db db :path "examples" :schema-path schema-path)]
     (notebook/jetty-server :handler handler :port 8080)))
 
