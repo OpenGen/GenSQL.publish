@@ -1,5 +1,5 @@
 (ns inferenceql.publish.client
-  (:require ["@inferenceql/components" :as components]
+  (:require ["@inferenceql/inferenceql.react" :as inferenceql.react]
             ["react" :as react]
             ["react-dom" :as react-dom]
             [clojure.edn :as edn]
@@ -58,5 +58,5 @@
                                     :initialQuery (string/trim query)
                                     ;; TODO: Rename `:statType` prop
                                     :statType (comp stattype->type stattype)}
-                         element (react/createElement components/Query props)]
+                         element (react/createElement inferenceql.react/Query props)]
                      (react-dom/render element div))))))))

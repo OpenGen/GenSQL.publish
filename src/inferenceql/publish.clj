@@ -2,9 +2,12 @@
   (:gen-class)
   (:import [clojure.lang ExceptionInfo]
            [java.io File InputStream PushbackReader]
+           [java.util Date]
            [org.jsoup Jsoup])
   (:require [babashka.cli :as cli]
+            [babashka.fs :as fs]
             [clojure.edn :as edn]
+            [clojure.java.browse :as browse]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.stacktrace :as stacktrace]
@@ -32,7 +35,11 @@
   (-> (response/not-found "Not found")
       (response/header "Content-Type" "text/plain")))
 
-(defrecord JettyServer [handler port]
+(defn now-ms
+  []
+  (inst-ms (Date.)))
+
+(defrecord JettyServer [handler port on-start]
   component/Lifecycle
 
   (start [component]
@@ -148,11 +155,37 @@
                         (flush)
                         (handler e request))})))
 
+(defn index-adoc
+  [path]
+  (let [adoc? #(= "adoc" (fs/extension %))]
+    (->> (file-seq (io/file path))
+         (remove fs/directory?)
+         (remove fs/hidden?)
+         (filter adoc?)
+         (map #(format "* link:%s?rel=%s[%s] (`%s`)"
+                       (fs/file-name %)
+                       (now-ms)
+                       (or (asciidoc/title %)
+                           "Untitled")
+                       (fs/file-name %)))
+         (into ["# inferenceql.publish"
+                ""
+                (format "`%s`" (.getAbsolutePath (io/file path)))
+                ""])
+         (string/join \newline))))
+
 (defn app
   [& {:keys [db path schema-path execute]}]
   (ring/ring-handler
    (ring/router
-    [["/api/query" (-> (#'query-handler db execute)
+    [["/" (-> (fn [_]
+                (-> (response/response (index-adoc path))
+                    (response/content-type "text/plain")))
+              (wrap-content-type {:mime-types {"adoc" "text/plain"
+                                               "md" "text/plain"}})
+              (wrap-convert)
+              (wrap-transform-html))]
+     ["/api/query" (-> (#'query-handler db execute)
                        (wrap-restful-format :formats [:json])
                        (wrap-restful-response))]
      ["/schema.edn" (fn [_]
@@ -173,17 +206,80 @@
   [& {:as opts}]
   (map->JettyServer opts))
 
+(defn coerce-path
+  [s]
+  (-> s fs/expand-home fs/path str))
+
+(def spec
+  {:path {:desc "Directory to be published."
+          :ref "<path>"
+          :require true
+          :coerce coerce-path
+          :validate (every-pred fs/exists? fs/directory?)}
+   :db {:desc "Database file."
+        :ref "<file>"
+        :require true
+        :coerce coerce-path
+        :validate (every-pred fs/exists? (complement fs/directory?))}
+   :schema {:desc "Schema file."
+            :ref "<file>"
+            :require true
+            :coerce coerce-path
+            :validate (every-pred fs/exists? (complement fs/directory?))}
+   :language {:desc "Query lanaguage. Can be strict or permissive."
+              :ref "<lang>"
+              :default "strict"
+              :validate #{"strict" "permissive"}}
+   :port {:desc "Server port."
+          :ref "<int>"
+          :default 8080
+          :coerce :long}
+   :help {:coerce :boolean}})
+
+(defn error-fn
+  [{:keys [type cause msg option] :as data}]
+  (if (= :org.babashka/cli type)
+    (let [formatted-opt (cli/format-opts {:spec (select-keys spec [option])})]
+      (println
+       (case cause
+         :require (format "Missing required argument:\n%s" formatted-opt)
+
+         :coerce
+         (case option
+           :port (format "Argument is not a valid number:\n%s" formatted-opt)
+           (format "Argument is not the required format:\n%s" formatted-opt))
+
+         :validate
+         (case option
+           :path (format "Argument must be a path to a directory:\n%s" formatted-opt)
+           :db (format "Argument must be a valid database file:\n%s" formatted-opt)
+           :schema (format "Argument must be a valid schema file:\n%s" formatted-opt)
+           :language (format "Argument must be one of (strict, permissive):\n%s" formatted-opt))
+         (throw (ex-info msg data))))
+      (flush))
+    (throw (ex-info msg data)))
+  (System/exit 1))
+
+(def opts {:spec spec :error-fn error-fn})
+
 (defn -main
   [& args]
-  (let [{:keys [db path schema language] :or {language "strict"}} (cli/parse-opts args)
-        execute (case (name language)
-                  "permissive" strict/query
-                  "strict" permissive/query)
-        db (atom (edn/read {:readers gpm/readers}
-                           (PushbackReader. (io/reader db))))
-        handler (app :db db
-                     :path path
-                     :schema-path schema
-                     :execute execute)
-        system (jetty-server :handler handler :port 8080)]
-    (component/start system)))
+  (if (or (empty? args)
+          (contains? (set args) "--help"))
+    (println (cli/format-opts opts))
+    (let [{:keys [db path schema language port]}
+          (cli/parse-opts args opts)
+
+          execute (case (name language)
+                    "permissive" permissive/query
+                    "strict" strict/query)
+          db (atom (edn/read {:readers gpm/readers}
+                             (PushbackReader. (io/reader db))))
+          handler (app :db db
+                       :path path
+                       :schema-path schema
+                       :execute execute)
+          system (jetty-server :handler handler :port port)]
+      (component/start system)
+      ;; Include a unique query string parameter to bust the browser's cache.
+      (browse/browse-url (format "http://localhost:%s?rel=%s" port (now-ms))))))

@@ -5,7 +5,7 @@
 
 (defmacro with-reporting
   [s & body]
-  `(do (println ~s)
+  `(do (println (str ~s "..."))
        (flush)
        ~@body))
 
@@ -104,25 +104,32 @@
       (build/delete {:path target})
       opts)))
 
-(defn copy
+(defn copy-css
   [opts]
-  (with-reporting "Copying Clojure source and resources"
+  (with-reporting "Copying stylesheets"
+    (let [opts (merge default-opts opts)
+          class-dir (class-dir opts)]
+
+      (build/copy-dir {:src-dirs ["node_modules/highlight.js/styles"]
+                       :target-dir (str class-dir "/styles")})
+      opts)))
+
+(defn copy-clj
+  [opts]
+  (with-reporting "Copying Clojure source"
     (let [{:keys [clojure-src-dirs] :as opts} (merge default-opts opts)
           class-dir (class-dir opts)]
       (build/copy-dir {:target-dir class-dir
                        :src-dirs clojure-src-dirs})
-      (build/copy-dir {:src-dirs ["node_modules/highlight.js/styles"]
-                       :target-dir (str class-dir "/styles")})
       opts)))
 
 (defn build
   [opts]
   (-> opts
+      (copy-css)
       (compile-java)
-      (compile-clj)
       (compile-cljs)
-      (bundle-js)
-      (copy))
+      (bundle-js))
   opts)
 
 (defn uberjar
@@ -130,7 +137,9 @@
   (let [{:keys [basis main] :as opts} (merge default-opts opts)]
     (-> opts
         (clean)
-        (build))
+        (build)
+        (compile-clj)
+        (copy-clj))
     (with-reporting "Building uberjar"
       (build/uber {:class-dir (class-dir opts)
                    :uber-file (uber-file opts)

@@ -20,6 +20,11 @@
   (stop [{:keys [asciidoctor]}]
     (.shutdown asciidoctor)))
 
+(defn title
+  [f]
+  (-> (.load asciidoctor (slurp f) {})
+      (.doctitle)))
+
 (defn ->html
   "Transforms an Asciidoc string into an HTML string."
   [s]
