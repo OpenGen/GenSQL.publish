@@ -273,7 +273,7 @@
           execute (case (name language)
                     "permissive" permissive/query
                     "strict" strict/query)
-          db (atom (edn/read {:readers gpm/readers}
+          db (atom (edn/read {:readers (merge gpm/readers @(requiring-resolve 'inferenceql.gpm.sppl/readers))}
                              (PushbackReader. (io/reader db))))
           handler (app :db db
                        :path path
