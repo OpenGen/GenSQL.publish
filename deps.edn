@@ -28,5 +28,5 @@
            :exec {:main-opts ["-m" "babashka.cli.exec" "inferenceql.publish" "-main"]}}
 
  :deps/prep-lib {:alias :build
-                 :fn compile-java
+                 :fn build
                  :ensure "target/classes"}}

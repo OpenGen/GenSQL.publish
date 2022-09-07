@@ -262,6 +262,12 @@
 
 (def opts {:spec spec :error-fn error-fn})
 
+(defn sppl-read-string
+  [s]
+  (when-let [read-string-var (requiring-resolve 'inferenceql.gpm.sppl/read-string)]
+    (let [read-string @read-string-var]
+      (read-string s))))
+
 (defn -main
   [& args]
   (if (or (empty? args)
@@ -273,7 +279,7 @@
           execute (case (name language)
                     "permissive" permissive/query
                     "strict" strict/query)
-          db (atom (edn/read {:readers (merge gpm/readers @(requiring-resolve 'inferenceql.gpm.sppl/readers))}
+          db (atom (edn/read {:readers (assoc gpm/readers :inferenceql.gpm.spe/SPE sppl-read-string)}
                              (PushbackReader. (io/reader db))))
           handler (app :db db
                        :path path
