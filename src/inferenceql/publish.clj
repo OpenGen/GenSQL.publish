@@ -279,7 +279,7 @@
           execute (case (name language)
                     "permissive" permissive/query
                     "strict" strict/query)
-          db (atom (edn/read {:readers (assoc gpm/readers :inferenceql.gpm.spe/SPE sppl-read-string)}
+          db (atom (edn/read {:readers (assoc gpm/readers 'inferenceql.gpm.spe/SPE sppl-read-string)}
                              (PushbackReader. (io/reader db))))
           handler (app :db db
                        :path path
