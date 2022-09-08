@@ -264,9 +264,9 @@
 
 (defn sppl-read-string
   [s]
-  (when-let [read-string-var (requiring-resolve 'inferenceql.gpm.sppl/read-string)]
-    (let [read-string @read-string-var]
-      (read-string s))))
+  (if-let [read-string (requiring-resolve 'inferenceql.gpm.sppl/read-string)]
+    (read-string s)
+    (throw (ex-info "Could not resolve inferenceql.gpm.sppl/read-string. Is inferenceql.gpm.sppl on the classpath?" {}))))
 
 (defn -main
   [& args]
@@ -289,3 +289,10 @@
       (component/start system)
       ;; Include a unique query string parameter to bust the browser's cache.
       (browse/browse-url (format "http://localhost:%s?rel=%s" port (now-ms))))))
+
+(comment
+
+  (-> (edn/read-string (slurp "/Users/zane/Downloads/repro/db.edn"))
+      (keys))
+
+  ,)
