@@ -1,16 +1,10 @@
 (ns user
-  (:import [java.io PushbackReader])
-  (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
+  (:require #_[inferenceql.query.strict :as strict]
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
-            [inferenceql.inference.gpm :as gpm]
+            [inferenceql.gpm.metaprob :as metaprob]
             [inferenceql.publish :as publish]
-            [inferenceql.query.permissive :as permissive]
-            #_[inferenceql.query.strict :as strict]))
-
-(def db-path "/Users/zane/Downloads/repro/db.edn")
-(def schema-path "examples/schema.edn")
+            [inferenceql.query.permissive :as permissive]))
 
 (def system nil)
 
@@ -32,10 +26,9 @@
 
 (defn new-system
   []
-  (let [db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
-        handler (publish/app :db db
+  (let [handler (publish/app :db (atom metaprob/db)
                              :path "examples"
-                             :schema-path schema-path
+                             :schema metaprob/schema
                              :execute permissive/query #_strict/query)]
     (publish/jetty-server :handler handler :port 8080)))
 

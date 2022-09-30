@@ -1,0 +1,6 @@
+= Metaprob
+
+[,iql]
+----
+SELECT * FROM (GENERATE * UNDER model) LIMIT 10
+----

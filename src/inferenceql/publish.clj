@@ -14,6 +14,7 @@
             [clojure.string :as string]
             [cognitect.anomalies :as-alias anomalies]
             [com.stuartsierra.component :as component]
+            [inferenceql.gpm.metaprob :as metaprob]
             [inferenceql.inference.gpm :as gpm]
             [inferenceql.publish.asciidoc :as asciidoc]
             [inferenceql.query.permissive :as permissive]
@@ -126,7 +127,7 @@
                          (get-in [:params "query"])
                          string/trim)
                relation (execute query db)
-               columns (relation/attributes relation)]
+               columns (into #{} (mapcat keys relation))]
            (response/response
             {:rows (into [] relation)
              :columns columns}))
@@ -175,7 +176,7 @@
          (string/join \newline))))
 
 (defn app
-  [& {:keys [db path schema-path execute]}]
+  [& {:keys [db path schema execute]}]
   (ring/ring-handler
    (ring/router
     [["/" (-> (fn [_]
@@ -189,7 +190,7 @@
                        (wrap-restful-format :formats [:json])
                        (wrap-restful-response))]
      ["/schema.edn" (fn [_]
-                      (-> (response/file-response schema-path)
+                      (-> (response/response (pr-str schema))
                           (response/content-type "application/edn")))]
      ["/styles/*" (ring/create-resource-handler {:root "styles"})]
      ["/js/*" (ring/create-resource-handler {:root "js"})]])
