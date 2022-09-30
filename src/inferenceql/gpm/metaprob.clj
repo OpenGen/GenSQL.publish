@@ -104,9 +104,9 @@
     (is (= 0.25 (math/exp (gpm.proto/logpdf gpm {:x false} {}))))))
 
 (def schema
-  {"x" "nominal"
-   "y" "nominal"
-   "z" "nominal"})
+  {"x" :nominal
+   "y" :nominal
+   "z" :nominal})
 
 (def variables (keys schema))
 
