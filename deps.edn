@@ -5,7 +5,6 @@
         com.cognitect/transit-clj {:mvn/version "1.0.329"}
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
-        io.github.inferenceql/inferenceql.gpm.sppl {:git/sha "594d4bced407826129723e84907954ebab71b315"}
         io.github.inferenceql/inferenceql.inference {:git/sha "9b79ebcdf3ffd107985c4adee79a657c6c724073"}
         io.github.inferenceql/inferenceql.query {:git/sha "adcae9503cc40a589e8c7df0c94aa859a79e866d"}
         lambdaisland/fetch {:mvn/version "1.0.41"}
