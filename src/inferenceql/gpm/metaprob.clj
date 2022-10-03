@@ -44,19 +44,13 @@
          (importance-sampling-score :model model :observation-trace (map->trace targets)))))
 
   (simulate [_ targets constraints]
-    (prn "targets" targets "constraints" constraints)
-    (let [result
-          (let [trace (map->trace constraints)]
-            (-> (let [result (inference/importance-resampling :model model
-                                                              :observation-trace trace
-                                                              :n-particles n-particles)]
-                  (prn "xxx" result)
-                  result)
-                (update-keys keyword)
-                (select-keys targets)
-                (update-vals :value)))]
-      (prn "simulate-result" result)
-      result))
+    (let [trace (map->trace constraints)]
+      (-> (inference/importance-resampling :model model
+                                           :observation-trace trace
+                                           :n-particles n-particles)
+          (update-keys keyword)
+          (select-keys targets)
+          (update-vals :value))))
 
   gpm.proto/Condition
   (condition [this conditions]
