@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#main",
+    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#045c0660bc98a64462153b12a2f0c5e87d44966c",
     "highlight.js": "^11.5.1",
     "prop-types": "^15.8.1",
     "react": "^17.0",
