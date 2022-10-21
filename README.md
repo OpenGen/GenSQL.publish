@@ -1,4 +1,6 @@
 # inferenceql.publish
+![tests](https://github.com/InferenceQL/inferenceql.publish/workflows/tests/badge.svg)
+![linter](https://github.com/InferenceQL/inferenceql.publish/workflows/linter/badge.svg)
 
 ## Usage
 
