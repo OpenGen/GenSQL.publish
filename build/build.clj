@@ -84,15 +84,14 @@
 
 (defn bundle-js
   [opts]
-  (let [{:keys [bundler-input bundler-output]} (merge default-opts opts)
-        bundler-output (or bundler-output
-                           (str (class-dir opts) "/js/main.js"))]
+  (let [{:keys [bundler-input bundler-outdir]} (merge default-opts opts)
+        bundler-outdir (or bundler-outdir
+                           (str (class-dir opts) "/js"))]
     (with-reporting "Bundling JavaScript files"
-      (let [{:keys [exit]} (build/process {:command-args ["pnpm" "rollup"
-                                                          "-c" "rollup.config.js"
-                                                          "-i" bundler-input
-                                                          "-o" bundler-output
-                                                          "-m"]})]
+      (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
+                                                          "--bundle"
+                                                          "--format=iife"
+                                                          (str "--outdir=" bundler-outdir)]})]
         (when-not (zero? exit)
           (throw (ex-info (str "JavaScript bundling failed")
                           {})))))))
