@@ -9,7 +9,7 @@ specifiers:
   react-dom: ^17.0
 
 dependencies:
-  '@inferenceql/inferenceql.react': github.com/inferenceql/inferenceql.react/045c0660bc98a64462153b12a2f0c5e87d44966c_sfoxds7t5ydpegc3knd667wn6m
+  '@inferenceql/inferenceql.react': github.com/inferenceql/inferenceql.react/045c0660bc98a64462153b12a2f0c5e87d44966c
   highlight.js: 11.6.0
   prop-types: 15.8.1
   react: 17.0.2
@@ -1450,16 +1450,12 @@ packages:
       yargs-parser: 21.1.1
     dev: false
 
-  github.com/inferenceql/inferenceql.react/045c0660bc98a64462153b12a2f0c5e87d44966c_sfoxds7t5ydpegc3knd667wn6m:
+  github.com/inferenceql/inferenceql.react/045c0660bc98a64462153b12a2f0c5e87d44966c:
     resolution: {tarball: https://codeload.github.com/inferenceql/inferenceql.react/tar.gz/045c0660bc98a64462153b12a2f0c5e87d44966c}
-    id: github.com/inferenceql/inferenceql.react/045c0660bc98a64462153b12a2f0c5e87d44966c
     name: '@inferenceql/inferenceql.react'
     version: 0.0.1-alpha
     prepare: true
     requiresBuild: true
-    peerDependencies:
-      react: ^17.0
-      react-dom: ^17.0
     dependencies:
       '@mantine/core': 4.2.12_cumpobgfs2auomzcjbuv5vhi7y
       '@mantine/hooks': 4.2.12_react@17.0.2
