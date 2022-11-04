@@ -1,13 +1,15 @@
 {
   "private": true,
   "dependencies": {
-    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#045c0660bc98a64462153b12a2f0c5e87d44966c",
+    "@emotion/react": "^11.10.4",
+    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#b54a02e5dad1a26bfa73873262f411f8b3019974",
     "highlight.js": "^11.5.1",
     "prop-types": "^15.8.1",
     "react": "^17.0",
     "react-dom": "^17.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0",
     "esbuild": "^0.15.12"
   }
 }
