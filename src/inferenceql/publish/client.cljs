@@ -48,6 +48,7 @@
              (let [schema (edn/read-string body)
                    stattype (stattype schema)]
                (doseq [code (js/window.document.querySelectorAll "pre code")]
+                 ;; <pre><code>...</code></pre>
                  (let [query (.-innerText code)
                        pre (.closest code "pre")
                        parent (.-parentElement pre)

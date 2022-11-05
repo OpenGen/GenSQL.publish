@@ -79,17 +79,6 @@
         (.attr "src" url))
     (str doc)))
 
-(defn add-stylesheet
-  [html url]
-  (let [doc (Jsoup/parse html)]
-    (-> doc
-        (.select "head")
-        (.first)
-        (.appendElement "link")
-        (.attr "rel" "stylesheet")
-        (.attr "href" url))
-    (str doc)))
-
 (defn wrap-convert
   "Ring middleware that converts Asciidoc to HTML."
   [handler]
@@ -100,22 +89,6 @@
         (-> response
             (update :body #(-> % ->string asciidoc/->html))
             (update :headers assoc "Content-Type" "text/html")
-            (update :headers dissoc "Content-Length"))
-        response))))
-
-(defn transform-html
-  [html]
-  (-> html
-      (add-script "body" "js/main.js")
-      (add-stylesheet "styles/github.css")))
-
-(defn wrap-transform-html [handler]
-  (fn [request]
-    (let [{:keys [status] :as response} (handler request)]
-      (if (and (= 200 status)
-               (= "text/html" (response/get-header response "Content-Type")))
-        (-> response
-            (update :body #(-> % ->string transform-html))
             (update :headers dissoc "Content-Length"))
         response))))
 
@@ -167,8 +140,7 @@
                                 (wrap-content-type {:mime-types {"adoc" "text/plain"
                                                                  "md" "text/plain"}})
                                 (wrap-not-modified)
-                                (wrap-convert)
-                                (wrap-transform-html))]
+                                (wrap-convert))]
        ["/api/query" (-> (#'query-handler db execute)
                          (wrap-restful-format :formats [:json])
                          (wrap-restful-response))]

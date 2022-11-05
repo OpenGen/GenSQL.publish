@@ -27,7 +27,6 @@
    :main 'inferenceql.publish
    :target "target"
    :clojure-src-dirs ["src"]
-   :java-src-dirs ["java"]
    :version (current-sha :short true)
    :basis (build/create-basis)})
 
@@ -42,15 +41,6 @@
                         (conj "DIRTY"))
                       (string/join "-"))]
     (format "%s/%s.jar" target filename)))
-
-(defn compile-java
-  [opts]
-  (with-reporting "Compiling Java files"
-    (let [{:keys [basis java-src-dirs] :as opts} (merge default-opts opts)]
-      (build/javac {:src-dirs java-src-dirs
-                    :class-dir (class-dir opts)
-                    :basis basis})))
-  opts)
 
 (defn compile-clj
   [opts]
@@ -91,6 +81,7 @@
       (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
                                                           "--bundle"
                                                           "--format=iife"
+                                                          "--sourcemap"
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
           (throw (ex-info (str "JavaScript bundling failed")
@@ -126,7 +117,6 @@
   [opts]
   (-> opts
       (copy-css)
-      (compile-java)
       (compile-cljs)
       (bundle-js))
   opts)

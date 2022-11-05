@@ -1,11 +1,32 @@
 = Exploring satellite data with InferenceQL
+:db: ./db.edn
+:schema: ./schema.edn
+
+[yell]
+----
+This is me yelling!
+----
 
 The InferenceQL query language extends a subset of SQL.
 
-[source,iql]
+[iql, database=./db.edn]
 ----
 SELECT * FROM satellites LIMIT 10
 ----
+
+[iql, database=https://..., schema=https://...]
+----
+SELECT * FROM satellites LIMIT 10
+----
+
+[iql]
+SELECT * FROM satellites LIMIT 10
+
+[iql]
+SELECT * FROM satellites LIMIT 10
+
+[iql]
+SELECT * FROM satellites LIMIT 10
 
 == Synthetic data
 
