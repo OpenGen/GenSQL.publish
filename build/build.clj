@@ -51,36 +51,18 @@
                           :basis basis})
       opts)))
 
-(defn compile-cljs
-  [opts]
-  (let [{:keys [target] :as opts} (merge default-opts opts)
-        working-dir (str target "/js")
-        cljsbuild-out-file (str working-dir "/index.js")]
-    (with-reporting "Compiling ClojureScript files"
-      (let [process-params (build/java-command (assoc opts
-                                                      :main 'clojure.main
-                                                      :main-args ["-m" "cljs.main"
-                                                                  "-co" "build.edn"
-                                                                  "-d" working-dir
-                                                                  "-o" cljsbuild-out-file
-                                                                  "-O" "advanced"
-                                                                  "-c"]))
-            {:keys [exit]} (build/process process-params)]
-        (when-not (zero? exit)
-          (throw (ex-info (str "ClojureScript compilation failed, working-dir preserved: "
-                               (.toString working-dir))
-                          {})))))
-    (assoc opts :bundler-input cljsbuild-out-file)))
-
 (defn bundle-js
   [opts]
   (let [{:keys [bundler-input bundler-outfile]} (merge default-opts opts)
+        bundler-input (or bundler-input
+                          "js/main.js")
         bundler-outfile (or bundler-outfile
-                           (str (class-dir opts) "/js/main.js"))]
+                            (str (class-dir opts) "/js/inferenceql.publish.js"))]
     (with-reporting "Bundling JavaScript files"
       (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
                                                           "--bundle"
                                                           "--format=iife"
+                                                          "--global-name=inferenceql.publish"
                                                           "--sourcemap"
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
@@ -92,6 +74,17 @@
   (with-reporting "Deleting target directory"
     (let [{:keys [target] :as opts} (merge default-opts opts)]
       (build/delete {:path target})
+      opts)))
+
+(defn copy-js
+  [opts]
+  (with-reporting "Copying JavaScript"
+    (let [opts (merge default-opts opts)
+          class-dir (class-dir opts)]
+      (build/copy-file {:src "node_modules/react/umd/react.development.js"
+                        :target (str class-dir "/js/react.development.js")})
+      (build/copy-file {:src "node_modules/react-dom/umd/react-dom.development.js"
+                        :target (str class-dir "/js/react-dom.development.js")})
       opts)))
 
 (defn copy-css
@@ -117,7 +110,7 @@
   [opts]
   (-> opts
       (copy-css)
-      (compile-cljs)
+      ;; (copy-js)
       (bundle-js))
   opts)
 

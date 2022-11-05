@@ -6,10 +6,11 @@
            [org.asciidoctor.ast ContentModel]
            [org.asciidoctor.ast Document]
            [org.asciidoctor.extension BlockProcessor]
+           [org.asciidoctor.extension Contexts]
            [org.asciidoctor.extension DocinfoProcessor]
-           [org.asciidoctor.extension LocationType]
-           [org.asciidoctor.extension Contexts])
-  (:require [com.stuartsierra.component :as component]))
+           [org.asciidoctor.extension LocationType])
+  (:require [clojure.string :as string]
+            [com.stuartsierra.component :as component]))
 
 (defn docinfo-processor
   [f & {:keys [location]}]
@@ -61,21 +62,19 @@
    :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
    :content-model ContentModel/SIMPLE
    :process-fn (fn [this parent reader _attributes]
-                 (let [id (gensym)]
-                   (.append parent (.createBlock this parent "pass" (str "<div id=\"" id "\"/>")))
-                   ;; (.append parent (.createBlock this parent "pass" "<script crossorigin src=\"https://unpkg.com/react@18/umd/react.development.js\"></script>"))
-                   ;; (.append parent (.createBlock this parent "pass" "<script crossorigin src=\"https://unpkg.com/react-dom@18/umd/react-dom.development.js\"></script>"))
-                   ;; (.append parent (.createBlock this parent "pass" "<script type=\"text/javascript\">console.log(\"Hello, world!\");</script>"))
-                   )
-                 parent)))
+                 (let [id (gensym)
+                       query (.read reader)]
+                   (doto parent
+                     (.append (.createBlock this parent "pass" (str "<pre id=\"" id "\"><code>" query "</code></pre>")))
+                     (.append (.createBlock this parent "pass" (str "<script type=\"text/javascript\">inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, { execute: inferenceql.publish.execute, initialQuery: \"" (string/escape query {\" "\\\"" \newline "\\n"}) "\" }), document.querySelector(\"#" id "\"))</script>"))))))))
 
 (def ^:private asciidoctor
-  (let [asciidoctor (Asciidoctor$Factory/create)]
-    (let [extension-registry (.javaExtensionRegistry asciidoctor)]
-      (.docinfoProcessor extension-registry (add-stylesheet-processor "styles/github.css"))
-      (.docinfoProcessor extension-registry (add-script-processor "js/main.js"))
-      (.block extension-registry yell-block-processor)
-      (.block extension-registry iql-block-processor))
+  (let [asciidoctor (Asciidoctor$Factory/create)
+        extension-registry (.javaExtensionRegistry asciidoctor)]
+    (.docinfoProcessor extension-registry (add-script-processor "js/inferenceql.publish.js"))
+    (.docinfoProcessor extension-registry (add-stylesheet-processor "styles/github.css"))
+    (.block extension-registry yell-block-processor)
+    (.block extension-registry iql-block-processor)
     asciidoctor))
 
 (defrecord Asciidoctor []
