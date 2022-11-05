@@ -10,6 +10,7 @@
            [org.asciidoctor.extension DocinfoProcessor]
            [org.asciidoctor.extension LocationType])
   (:require [clojure.string :as string]
+            [clojure.data.json :as json]
             [com.stuartsierra.component :as component]))
 
 (defn docinfo-processor
@@ -40,40 +41,33 @@
    :location LocationType/HEADER))
 
 (defn block-processor
-  [& {:keys [process-fn name contexts content-model]}]
-  {:pre [(some? process-fn) (some? name)]}
+  [& {:keys [fn name contexts content-model]}]
+  {:pre [(some? fn) (some? name)]}
   (let [config (HashMap.)]
     (when contexts (.put config Contexts/KEY contexts))
     (when content-model (.put config ContentModel/KEY content-model))
     (proxy [BlockProcessor] [name config]
       (process [parent reader attributes]
-        (process-fn this parent reader attributes)))))
-
-(def yell-block-processor
-  (block-processor :process-fn (fn [this parent _reader attributes]
-                                 (.createBlock this parent "pass" "It worked!" attributes))
-                   :name "yell"
-                   :contexts [Contexts/PARAGRAPH Contexts/LISTING]
-                   :content-model ContentModel/SIMPLE))
+        (fn this parent reader attributes)))))
 
 (def iql-block-processor
   (block-processor
    :name "iql"
    :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
    :content-model ContentModel/SIMPLE
-   :process-fn (fn [this parent reader _attributes]
-                 (let [id (gensym)
-                       query (.read reader)]
-                   (doto parent
-                     (.append (.createBlock this parent "pass" (str "<pre id=\"" id "\"><code>" query "</code></pre>")))
-                     (.append (.createBlock this parent "pass" (str "<script type=\"text/javascript\">inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, { execute: inferenceql.publish.execute, initialQuery: \"" (string/escape query {\" "\\\"" \newline "\\n"}) "\" }), document.querySelector(\"#" id "\"))</script>"))))))))
+   :fn (fn [this parent reader _attributes]
+         (let [id (gensym)
+               query (.read reader)
+               props (str "{ execute: inferenceql.publish.execute, initialQuery: " (json/write-str query) " }")]
+           (doto parent
+             (.append (.createBlock this parent "pass" (str "<div id=\"" id "\"><pre><code>" query "</code></pre></div>")))
+             (.append (.createBlock this parent "pass" (str "<script type=\"text/javascript\">inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, " props "), document.querySelector(\"#" id "\"))</script>"))))))))
 
 (def ^:private asciidoctor
   (let [asciidoctor (Asciidoctor$Factory/create)
         extension-registry (.javaExtensionRegistry asciidoctor)]
     (.docinfoProcessor extension-registry (add-script-processor "js/inferenceql.publish.js"))
     (.docinfoProcessor extension-registry (add-stylesheet-processor "styles/github.css"))
-    (.block extension-registry yell-block-processor)
     (.block extension-registry iql-block-processor)
     asciidoctor))
 

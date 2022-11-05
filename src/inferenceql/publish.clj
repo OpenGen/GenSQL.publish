@@ -67,18 +67,6 @@
       (throw (ex-info "Cannot convert to string: " (pr-str x)
                       {:value x})))))
 
-(defn add-script
-  [html selector url]
-  (let [doc (Jsoup/parse html)]
-    (-> doc
-        (.select selector)
-        (.first)
-        (.appendElement "script")
-        (.attr "type" "text/javascript")
-        (.attr "crossorigin" true)
-        (.attr "src" url))
-    (str doc)))
-
 (defn wrap-convert
   "Ring middleware that converts Asciidoc to HTML."
   [handler]
