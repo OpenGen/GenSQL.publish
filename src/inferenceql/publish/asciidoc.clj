@@ -9,9 +9,9 @@
            [org.asciidoctor.extension Contexts]
            [org.asciidoctor.extension DocinfoProcessor]
            [org.asciidoctor.extension LocationType])
-  (:require [clojure.string :as string]
-            [clojure.data.json :as json]
-            [com.stuartsierra.component :as component]))
+  (:require [clojure.data.json :as json]
+            [com.stuartsierra.component :as component]
+            [hiccup.core :as hiccup]))
 
 (defn docinfo-processor
   [f & {:keys [location]}]
@@ -29,7 +29,7 @@
   (docinfo-processor
    (fn [_ document]
      (when (.isBasebackend document "html")
-       (str "<link rel=\"stylesheet\" href=\"" url "\"></link>")))
+       (hiccup/html [:link {:rel "stylesheet" :href url}])))
    :location LocationType/HEADER))
 
 (defn add-script-processor
@@ -37,7 +37,9 @@
   (docinfo-processor
    (fn [_ document]
      (when (.isBasebackend document "html")
-       (str "<script type=\"text/javascript\" crossorigin src=\"" url "\"></script>")))
+       (hiccup/html [:script {:type "text/javascript"
+                              :crossorigin true
+                              :src url}])))
    :location LocationType/HEADER))
 
 (defn block-processor
@@ -60,8 +62,9 @@
                query (.read reader)
                props (str "{ execute: inferenceql.publish.execute, initialQuery: " (json/write-str query) " }")]
            (doto parent
-             (.append (.createBlock this parent "pass" (str "<div id=\"" id "\"><pre><code>" query "</code></pre></div>")))
-             (.append (.createBlock this parent "pass" (str "<script type=\"text/javascript\">inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, " props "), document.querySelector(\"#" id "\"))</script>"))))))))
+             (.append (.createBlock this parent "pass" (hiccup/html [:div {:id id} [:pre [:code query]]])))
+             (.append (.createBlock this parent "pass" (hiccup/html [:script {:type "text/javascript"}
+                                                                     (str "inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, " props "), document.querySelector(\"#" id "\"))")]))))))))
 
 (def ^:private asciidoctor
   (let [asciidoctor (Asciidoctor$Factory/create)
