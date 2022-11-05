@@ -76,17 +76,6 @@
       (build/delete {:path target})
       opts)))
 
-(defn copy-js
-  [opts]
-  (with-reporting "Copying JavaScript"
-    (let [opts (merge default-opts opts)
-          class-dir (class-dir opts)]
-      (build/copy-file {:src "node_modules/react/umd/react.development.js"
-                        :target (str class-dir "/js/react.development.js")})
-      (build/copy-file {:src "node_modules/react-dom/umd/react-dom.development.js"
-                        :target (str class-dir "/js/react-dom.development.js")})
-      opts)))
-
 (defn copy-css
   [opts]
   (with-reporting "Copying stylesheets"
@@ -110,7 +99,6 @@
   [opts]
   (-> opts
       (copy-css)
-      ;; (copy-js)
       (bundle-js))
   opts)
 
