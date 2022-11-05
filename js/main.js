@@ -26,9 +26,13 @@ const execute = function(s) {
   })
 };
 
+const mount = function(type, props, id) {
+  const fullProps = { execute: execute, ...props };
+  const element = React.createElement(components[type], fullProps);
+  const container = document.querySelector("#" + id);
+  ReactDOM.render(element, container);
+};
+
 module.exports = {
-  React: require('react'),
-  ReactDOM: require('react-dom'),
-  inferenceql: { react: require('@inferenceql/inferenceql.react') },
-  execute: execute
+  mount: mount,
 };

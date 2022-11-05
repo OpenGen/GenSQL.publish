@@ -58,13 +58,13 @@
    :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
    :content-model ContentModel/SIMPLE
    :fn (fn [this parent reader _attributes]
-         (let [id (gensym)
+         (let [id (str (gensym "publish"))
                query (.read reader)
-               props (str "{ execute: inferenceql.publish.execute, initialQuery: " (json/write-str query) " }")]
+               props (json/write-str {:initialQuery query})]
            (doto parent
              (.append (.createBlock this parent "pass" (hiccup/html [:div {:id id} [:pre [:code query]]])))
              (.append (.createBlock this parent "pass" (hiccup/html [:script {:type "text/javascript"}
-                                                                     (str "inferenceql.publish.ReactDOM.render(inferenceql.publish.React.createElement(inferenceql.publish.inferenceql.react.Query, " props "), document.querySelector(\"#" id "\"))")]))))))))
+                                                                     (str "inferenceql.publish.mount('Query', " props ", " (json/write-str id) ");" )]))))))))
 
 (def ^:private asciidoctor
   (let [asciidoctor (Asciidoctor$Factory/create)
