@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@babel/core': ^7.0.0
   '@emotion/react': ^11.10.4
-  '@inferenceql/inferenceql.react': inferenceql/inferenceql.react#b54a02e5dad1a26bfa73873262f411f8b3019974
+  '@inferenceql/inferenceql.react': inferenceql/inferenceql.react#joaoloula/20221108-natural-language
   esbuild: ^0.15.12
   highlight.js: ^11.5.1
   prop-types: ^15.8.1
@@ -12,7 +12,7 @@ specifiers:
 
 dependencies:
   '@emotion/react': 11.10.5_suifg2tpibp7yrhp2co27vag4i
-  '@inferenceql/inferenceql.react': github.com/inferenceql/inferenceql.react/b54a02e5dad1a26bfa73873262f411f8b3019974_telfbygo27ajj4kewizuczeq6a
+  '@inferenceql/inferenceql.react': github.com/inferenceql/inferenceql.react/dcfa64386d9ecb574ea2c4a7b6baa14082381a55_telfbygo27ajj4kewizuczeq6a
   highlight.js: 11.6.0
   prop-types: 15.8.1
   react: 17.0.2
@@ -1985,9 +1985,9 @@ packages:
       yargs-parser: 21.1.1
     dev: false
 
-  github.com/inferenceql/inferenceql.react/b54a02e5dad1a26bfa73873262f411f8b3019974_telfbygo27ajj4kewizuczeq6a:
-    resolution: {tarball: https://codeload.github.com/inferenceql/inferenceql.react/tar.gz/b54a02e5dad1a26bfa73873262f411f8b3019974}
-    id: github.com/inferenceql/inferenceql.react/b54a02e5dad1a26bfa73873262f411f8b3019974
+  github.com/inferenceql/inferenceql.react/dcfa64386d9ecb574ea2c4a7b6baa14082381a55_telfbygo27ajj4kewizuczeq6a:
+    resolution: {tarball: https://codeload.github.com/inferenceql/inferenceql.react/tar.gz/dcfa64386d9ecb574ea2c4a7b6baa14082381a55}
+    id: github.com/inferenceql/inferenceql.react/dcfa64386d9ecb574ea2c4a7b6baa14082381a55
     name: '@inferenceql/inferenceql.react'
     version: 0.0.1-alpha
     prepare: true

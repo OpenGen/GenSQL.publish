@@ -1,0 +1,101 @@
+= Stackoverflow Developer Survey
+:stem: latexmath
+:developer_recordsbase: /Users/zane/Desktop/db.edn
+
+== Explore the developer records
+
+[source,iql]
+----
+SELECT * FROM developer_records LIMIT 5
+----
+
+
+== Are there pay gaps?
+
+Click on `Plots` to visualize the data!
+[source,iql]
+----
+SELECT SalaryUSD, Gender, Ethnicity FROM developer_records
+----
+
+==== It's hard to say, because there are so many  white/male developers in this data
+
+[source,iql]
+----
+SELECT
+  COUNT(*) AS n,
+  Gender,
+  Ethnicity
+FROM developer_records
+GROUP BY Gender, Ethnicity
+ORDER BY n DESC
+LIMIT 10
+----
+
+
+== InferenceQL has picked up a relationship between salary and gender
+
+Click on `Plots` and select women.
+
+[source,iql]
+----
+SELECT
+  SalaryUSD,
+  Gender,
+  PROBABILITY OF SalaryUSD
+    UNDER developer_record_generator
+      GIVEN Gender
+        AS probability_salary
+FROM developer_records
+----
+
+==== and between salary and ethnicity
+
+Click on `Plots` and select Hispanics/Latinos.
+
+[source,iql]
+----
+SELECT
+  SalaryUSD,
+  Ethnicity,
+  PROBABILITY OF SalaryUSD
+    UNDER developer_record_generator
+      GIVEN Ethnicity
+        AS probability_salary
+FROM developer_records
+----
+
+== Who is underpaid?
+
+[source,iql]
+----
+  SELECT
+    PROBABILITY OF SalaryUSD >  SalaryUSD
+      UNDER developer_record_generator
+        GIVEN YearsCodeProfessional AND Background
+        AS probability_underpaid,
+    Gender,
+    Ethnicity
+    FROM
+    SELECT * FROM developer_records
+    WHERE (Ethnicity IS NOT "White") AND (Gender IS NOT "Man")
+ORDER BY probability_underpaid DESC
+LIMIT 10
+----
+
+
+== Which Gender is likely underpaid, given their experience and Background?
+
+[source,iql]
+----
+SELECT AVG(prob) AS probability_underpaid, Gender FROM
+  SELECT
+    PROBABILITY OF SalaryUSD >  SalaryUSD
+      UNDER developer_record_generator
+        GIVEN YearsCodeProfessional AND Background
+        AS prob,
+    Gender
+  FROM developer_records
+GROUP BY Gender ORDER BY probability_underpaid DESC
+----
+

@@ -64,6 +64,7 @@
                                                           "--format=iife"
                                                           "--global-name=inferenceql.publish"
                                                           "--sourcemap"
+                                                          (str "--define:process.env.OPENAI_API_KEY=\"" (System/getenv "OPENAI_API_KEY") "\"") 
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
           (throw (ex-info (str "JavaScript bundling failed")
