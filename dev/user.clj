@@ -39,7 +39,6 @@
                       {}
                       e)))))
 
-
 (defn new-system
   []
   (let [db-path "examples/db-stackoverflow-sppl.edn"
