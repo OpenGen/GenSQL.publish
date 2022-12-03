@@ -1,6 +1,8 @@
 (ns user
-  (:import [java.io PushbackReader])
-  (:require [clojure.edn :as edn]
+  (:import [clojure.lang ExceptionInfo] 
+           [java.io PushbackReader])
+  (:require [borkdude.dynaload :as dynaload]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
@@ -27,13 +29,24 @@
     (when x
       (f x))))
 
+(defn sppl-read-string
+  [s]
+  (try
+    (let [read-string (dynaload/dynaload 'inferenceql.gpm.sppl/read-string)]
+      (read-string s))
+    (catch ExceptionInfo e
+      (throw (ex-info "Could not resolve inferenceql.gpm.sppl/read-string. Is inferenceql.gpm.sppl on the classpath?"
+                      {}
+                      e)))))
+
 (defn new-system
   []
-  (let [db-path "examples/db.edn"
-        schema-path "examples/schema.edn"
-        db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
+  (let [db-path "examples/db-stackoverflow-sppl.edn"
+        schema-path "examples/schema-stackoverflow.edn"
+        db (atom (edn/read {:readers (assoc gpm/readers 'inferenceql.gpm.spe/SPE sppl-read-string)}
+        (PushbackReader. (io/reader db-path))))
         handler (publish/app :db db
-                             :path "examples/satellites.adoc"
+                             :path "examples/natural-language.adoc"
                              :schema-path schema-path
                              :execute permissive/query #_strict/query)]
     (publish/jetty-server :handler handler :port 8080)))

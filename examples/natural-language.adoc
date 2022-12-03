@@ -1,0 +1,10 @@
+= Exploring StackOverflow developer survey data using ChiExpertise
+:db: ./db.edn
+:schema: ./schema.edn
+
+== Write a natural language query in the box below
+
+[iql]
+----
+Insert query here
+----

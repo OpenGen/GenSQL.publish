@@ -91,6 +91,7 @@
       (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
                                                           "--bundle"
                                                           "--format=iife"
+                                                          (str "--define:process.env.OPENAI_API_KEY=\"" (System/getenv "OPENAI_API_KEY") "\"") 
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
           (throw (ex-info (str "JavaScript bundling failed")
