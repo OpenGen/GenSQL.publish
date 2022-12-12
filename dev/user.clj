@@ -49,7 +49,7 @@
                              :path "examples/natural-language.adoc"
                              :schema-path schema-path
                              :execute permissive/query #_strict/query)]
-    (publish/jetty-server :handler handler :port 8080)))
+    (publish/jetty-server :handler handler :port 8082)))
 
 (defn init
   "Constructs the current development system."
