@@ -41,15 +41,15 @@
 
 (defn new-system
   []
-  (let [db-path "examples/db-stackoverflow-sppl.edn"
-        schema-path "examples/schema-stackoverflow.edn"
+  (let [db-path "/home/ulli/iql/tutorials/db-DEIJ-COGO.edn"
+        schema-path "/home/ulli/iql/tutorials/schema-stackoverflow-all.edn"
         db (atom (edn/read {:readers (assoc gpm/readers 'inferenceql.gpm.spe/SPE sppl-read-string)}
         (PushbackReader. (io/reader db-path))))
         handler (publish/app :db db
                              :path "examples/natural-language.adoc"
                              :schema-path schema-path
                              :execute permissive/query #_strict/query)]
-    (publish/jetty-server :handler handler :port 8080)))
+    (publish/jetty-server :handler handler :port 8089)))
 
 (defn init
   "Constructs the current development system."

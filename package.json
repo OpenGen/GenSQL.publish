@@ -2,8 +2,9 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.4",
-    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#joaoloula/20221203_english-iql",
+    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#schaechtle/explore-gpt-prompt",
     "highlight.js": "^11.5.1",
+    "openai": "^3.1.0",
     "prop-types": "^15.8.1",
     "react": "^17.0",
     "react-dom": "^17.0"
