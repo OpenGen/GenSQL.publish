@@ -355,6 +355,7 @@ packages:
 
   /@floating-ui/react-dom-interactions/0.10.3_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-UEHqdnzyoiWNU5az/tAljr9iXFzN18DcvpMqW+/cXz4FEhDEB1ogLtWldOWCujLerPBnSRocADALafelOReMpw==}
+    deprecated: Package renamed to @floating-ui/react
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'

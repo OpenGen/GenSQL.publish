@@ -9,7 +9,9 @@
             [clojure.java.io :as io]
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
+            [inferenceql.query.db :as db]
             [inferenceql.inference.gpm :as gpm]
+            [inferenceql.query.io :as iql_io]
             [inferenceql.publish :as publish]
             [inferenceql.query.permissive :as permissive]
             #_[inferenceql.query.strict :as strict]))
@@ -37,7 +39,7 @@
     (let [model-path "examples/real_world_data.json"
       schema-path "examples/schema_real_world_data.edn"
       data-path "examples/real_world_data.csv"
-      data (io/slurp-csv data)
+      data (iql_io/slurp-csv data-path)
       model ('inferenceql.gpm.sppl/read-string model-path)
       db (-> (db/empty)
               (db/with-table 'data data)
