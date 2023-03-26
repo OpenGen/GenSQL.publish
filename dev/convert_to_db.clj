@@ -16,19 +16,22 @@
               [inferenceql.query.permissive :as permissive]
               #_[inferenceql.query.strict :as strict]))
 
-(defn read-model
+(defn read-model-json
     [file]
 (let [slurp-spn (requiring-resolve 'inferenceql.gpm.sppl/slurp)]
     (slurp-spn file)))
 
+(defn read-model-edn
+    [file]
+    (edn/read {:readers gpm/readers} (PushbackReader. (io/reader file))))
 
-(let [model-path "examples/synthetic_control_arm.json"
+(let [model-path "examples/synthetic_control_arm_sample0.json"
     schema-path "examples/schema_synthetic_control_arm.edn"
     data-path "examples/synthetic_control_arm_nullified.csv"
     poststrat-data-path "examples/synthetic_control_arm_poststrat.csv"
     data (iql_io/slurp-csv data-path)
     poststrat_data (iql_io/slurp-csv poststrat-data-path)
-    model (read-model model-path)
+    model (read-model-json model-path)
     db (-> (db/empty)
             (db/with-table 'data data)
             (db/with-table 'new_data poststrat_data)
@@ -37,13 +40,13 @@
 (spit "synthetic_control_arm_db.edn" (prn-str db)) 
             )
 
-(let [model-path "examples/real_world_data.json"
+(let [model-path "examples/real_world_data_sample0.json"
     schema-path "examples/schema_real_world_data.edn"
     data-path "examples/real_world_data_nullified.csv"
     meps-data-path "examples/real_world_poststrat.csv"
     data (iql_io/slurp-csv data-path)
     meps-data (iql_io/slurp-csv meps-data-path)
-    model (read-model model-path)
+    model (read-model-json model-path)
     db (-> (db/empty)
             (db/with-table 'data data)
             (db/with-table 'meps_data meps-data)

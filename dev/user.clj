@@ -45,10 +45,22 @@
               (db/with-table 'data data)
               (db/with-model 'model model))
         handler (publish/app :db db
-                             :path "examples/satellites.adoc"
+                             :path "examples/real_world_data.adoc"
                              :schema-path schema-path
                              :execute permissive/query #_strict/query)]
     (publish/jetty-server :handler handler :port 8080)))
+
+;; (defn new-system
+;;   []
+;;   (let [db-path "examples/real_world_data_db.edn"
+;;         schema-path "examples/schema_real_world_data.edn"
+;;         db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
+;;         handler (publish/app :db db
+;;                               :path "examples/real_world_data.adoc"
+;;                               :schema-path schema-path
+;;                               :execute permissive/query #_strict/query)]
+;;     (publish/jetty-server :handler handler :port 8080)))
+
 
 (defn init
   "Constructs the current development system."
