@@ -1,6 +1,11 @@
 (ns user
-  (:import [java.io PushbackReader])
+  (:import [java.io PushbackReader]
+           [clojure.lang ExceptionInfo] 
+           [java.io PushbackReader]
+    )
   (:require [clojure.edn :as edn]
+            [clojure.edn :as edn]
+            [borkdude.dynaload :as dynaload]
             [clojure.java.io :as io]
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
@@ -29,9 +34,14 @@
 
 (defn new-system
   []
-  (let [db-path "examples/db.edn"
-        schema-path "examples/schema.edn"
-        db (atom (edn/read {:readers gpm/readers} (PushbackReader. (io/reader db-path))))
+    (let [model-path "examples/real_world_data.json"
+      schema-path "examples/schema_real_world_data.edn"
+      data-path "examples/real_world_data.csv"
+      data (io/slurp-csv data)
+      model ('inferenceql.gpm.sppl/read-string model-path)
+      db (-> (db/empty)
+              (db/with-table 'data data)
+              (db/with-model 'model model))
         handler (publish/app :db db
                              :path "examples/satellites.adoc"
                              :schema-path schema-path
