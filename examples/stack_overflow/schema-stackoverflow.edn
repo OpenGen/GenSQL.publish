@@ -1,0 +1,4 @@
+{"Julia" :nominal, "Age" :nominal, "Ethnicity" :nominal, "YearsCode" :numerical, "Python" :nominal, "Education" :nominal, 
+"Gender" :nominal, "Rust" :nominal, "JavaScript" :nominal, "R" :nominal, "C" :nominal, "SalaryUSD" :numerical, 
+"Clojure" :nominal, "YearsCodeProfessional" :numerical, "SQL" :nominal, "HTML_CSS" :nominal, "Java" :nominal,
+"Background" :nominal, "Cplusplus" :nominal, "LISP" :nominal, "Sexuality" :nominal, "Blockchain" :nominal}

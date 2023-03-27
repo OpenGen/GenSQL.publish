@@ -1,0 +1,201 @@
+= Exploring StackOverflow developer  data with InferenceQL
+
+* https://www.youtube.com/watch?v=rPdztj-mXn8&ab_channel=AutoMLConf&themeRefresh=1[Video introduction] (5 minutes) to InferenceQL]
+* https://2022.automl.cc/wp-content/uploads/2022/07/bayesian_automl_for_databases_.pdf[Workshop paper] (8 pages) about InferenceQL
+
+
+# 1. Querying data
+
+We will begin by asking IQL for an initial segment (the first 5 rows) of the data by executing a query and then 
+viewing the results in an spreadsheet-like table. This particular data table is named developer_records. 
+To see the results, click the button labeled [Execute].
+
+[source,iql]
+----
+SELECT * FROM developer_records LIMIT 5
+----
+
+As in SQL, we can also ask for a specific set of columns, restrict the output via WHERE, order by certain columns via 
+ORDER BY, and limit the rows that are returned to an initial segment via LIMIT. (Again, hit [Execute] to see the results.)
+
+[source,iql]
+----
+SELECT Education, YearsCodeProfessional, Age
+FROM developer_records
+WHERE Python = "yes"
+ORDER BY YearsCodeProfessional DESC
+LIMIT 5
+----
+
+Problem 1: Please write a query in the box below, to show two columns that indicate whether developers program in 
+Python or Rust, for the first 10 female participants with at least 10 years of professional coding experience.
+
+[source,iql]
+----
+Write your query here (in place of this text) & then run [Execute].
+----
+
+# 2. Generating synthetic data
+
+InferenceQL builds a model from the data, and allows the user to then ask questions about this model
+(named developer_record_generator). We can use this model to generate synthetic data. (Click [Execute] below.)
+
+[source,iql]
+----
+SELECT * FROM
+  GENERATE Age, YearsCodeProfessional, Education
+    UNDER developer_record_generator 
+LIMIT 100
+----
+
+After running the query above, click on Plots to see a visualization of pairs of columns plotted against each other
+(Age vs. YearsCodeProfessional; Age vs. Education; and Education vs. YearsCodeProfessional). 
+If you select a rectangular region in one visualization, the corresponding points in the other will be highlighted as well.
+
+If you would like to explore this further, you can change some column names in the query (e.g., to SalaryUSD or
+Gender) before again clicking [Execute]. 
+
+Problem 2a: In InferenceQL, GENERATE queries can be combined with WHERE, ORDER, and LIMIT clauses. 
+Please write a query in the box below, to generate 20 data points with columns Age, YearsCodeProfessional, and 
+Education, where YearsCodeProfessional is at least 20. 
+(After you hit [Execute], click on Plots to see a visualization of the output rows.)
+
+[source,iql]
+----
+Write your query here (in place of this text) & then run [Execute].
+----
+
+# 3. Answering statistical questions with models
+
+In addition to using InferenceQL’s model to generate synthetic data, we can also ask statistical questions about the model
+directly.
+
+The next query assesses the probability under the model of a developer having a yearly salary above 150,000.
+(PROBABILITY OF works inside of a SELECT query, which returns a whole table, whose first row we return to get the answer.)
+
+[source,iql]
+----
+SELECT
+  PROBABILITY OF SalaryUSD > 150000
+    UNDER developer_record_generator
+    AS probability_high_salary
+FROM developer_records
+LIMIT 1
+----
+
+We can also ask for the conditional probability that participants have a high salary, given that they have over 20
+years of experience.
+
+[source,iql]
+----
+SELECT
+  PROBABILITY OF SalaryUSD > 150000
+    UNDER developer_record_generator
+      GIVEN YearsCodeProfessional > 20
+    AS probability_high_salary
+FROM developer_records 
+LIMIT 1
+----
+
+This conditional probability is higher than the previous probability, which captures the intuition that having a many 
+years of experience leads to a higher chance of a high salary.
+
+We can also condition on multiple other columns. For example, we can condition YearsCodeProfessional > 20 and on 
+R="yes".
+
+[source,iql]
+----
+SELECT
+  PROBABILITY OF SalaryUSD > 150000
+    UNDER developer_record_generator
+      GIVEN YearsCodeProfessional > 20 AND R="yes"
+    AS probability_high_salary
+FROM developer_records 
+LIMIT 1
+----
+
+Problem 4a: In the box below, write a modification of the previous query where now
+you compute the probability of a participant having more than 20 years of experience given that their salary is
+above 150,000 dollars. 
+
+[source,iql]
+----
+Write your query here (in place of this text) & then run [Execute].
+----
+
+# 4. Generalizing to non-representative distributions
+
+Suppose a company wants to hire a new batch of engineers. The company can estimate costs by using the average
+salary of a developer:
+
+[source,iql]
+----
+SELECT AVG(SalaryUSD) FROM
+(SELECT * FROM (
+      GENERATE SalaryUSD
+        UNDER developer_record_generator)
+  LIMIT 1000)
+----
+
+However, this average is computed over the distribution of all developers in the StackOverflow sample, which might
+not be representative of the company's hiring distribution.
+
+Assume we know that the company hires young fullstack engineers who know SQL and JavaScript, and who are developers by
+profession. In this case, the average salary the company can expect to pay will be lower:
+
+[source,iql]
+----
+SELECT AVG(SalaryUSD) FROM
+(SELECT * FROM (
+      GENERATE SalaryUSD
+        UNDER developer_record_generator
+        GIVEN Background = "I am a developer by profession" AND SQL="yes" and JavaScript="yes"
+        )
+  LIMIT 1000)
+----
+
+# 5. Measuring diversity
+
+Show developers that are probably underpaid given background and experience
+
+[source,iql]
+----
+SELECT * FROM
+    SELECT
+        PROBABILITY OF SalaryUSD > SalaryUSD
+        UNDER developer_record_generator
+        GIVEN YearsCodeProfessional AND Background
+        AS probability_underpaid,
+    Gender,
+    Ethnicity
+    FROM SELECT * FROM developer_records
+WHERE probability_underpaid > 0.5
+----
+
+Show developers' salary, gender, and probable salary given gender. [Click on the Plots tab to look at the salary
+distribution curves by gender]
+
+[source,iql]
+----
+SELECT SalaryUSD, Gender,
+    PROBABILITY OF SalaryUSD UNDER developer_record_generator
+    GIVEN Gender
+FROM SELECT * FROM developer_records
+----
+
+Show the median probability that each gender is underpaid, given background and experience
+
+[source,iql]
+----
+SELECT Gender, MEDIAN(probability_underpaid), AS median_probability_underpaid
+FROM SELECT
+    PROBABILITY OF SalaryUSD > SalaryUSD
+        UNDER developer_record_generator 
+        GIVEN YearsCodeProfessional AND Background
+        AS probability_underpaid,
+    Gender
+    FROM
+    SELECT * FROM developer_records
+GROUP BY Gender
+ORDER BY median_probability_underpaid DESC
+----
