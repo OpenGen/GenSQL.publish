@@ -40,9 +40,9 @@
 (spit "synthetic_control_arm_db.edn" (prn-str db)) 
             )
 
-(let [model-path "examples/real_world_data_sample0.json"
+(let [model-path "examples/real_world_data/sample.9.json"
     schema-path "examples/schema_real_world_data.edn"
-    data-path "examples/real_world_data_nullified.csv"
+    data-path "examples/real_world_data.csv"
     meps-data-path "examples/real_world_poststrat.csv"
     data (iql_io/slurp-csv data-path)
     meps-data (iql_io/slurp-csv meps-data-path)

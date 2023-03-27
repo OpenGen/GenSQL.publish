@@ -1,0 +1,116 @@
+= Exploring real world data for clinical trials with InferenceQL
+
+Show me 5 rows from the data
+
+[source,iql]
+----
+SELECT * FROM data LIMIT 5
+----
+
+Generate synthetic data
+
+[source,iql]
+----
+SELECT * FROM
+  GENERATE
+    education,
+    bmi,
+    log_psa_baseline,
+    health_outcome
+  UNDER model
+  GIVEN insurance_coverage = "public"
+LIMIT 10
+----
+
+We can use generators to explore hypotheticals
+
+
+[source,iql]
+----
+SELECT
+  COUNT(*) AS count,
+  health_outcome
+FROM
+  (SELECT * FROM
+    GENERATE health_outcome
+    UNDER model
+    GIVEN previous_radiotherapy = "yes" AND log_psa_baseline > 6
+  LIMIT 1000)
+GROUP BY health_outcome
+ORDER BY count DESC
+LIMIT 10
+----
+
+Show me patients whose survival time is lower than expected given ecog performance and psa levels
+(TODO: shuffle rows so we )
+
+[source,iql]
+----
+SELECT * FROM
+  SELECT
+    PROBABILITY OF log_time_to_outcome > log_time_to_outcome
+      UNDER model
+        GIVEN ecog_performance_status AND log_psa_baseline
+      AS probability_shorter_survival,
+    education,
+    insurance_coverage
+    FROM (SELECT * FROM data WHERE log_time_to_outcome IS NOT NULL)
+WHERE probability_shorter_survival > 0.5
+LIMIT 10
+----
+
+Show me patients' median predicted survival time by education level
+
+[source,iql]
+----
+SELECT education, MEDIAN(log_time_to_outcome) as avg_time
+FROM (SELECT * FROM
+    GENERATE education, log_time_to_outcome
+    UNDER model
+  LIMIT 10000)
+GROUP BY education
+ORDER BY avg_time DESC
+----
+
+What’s the median probability that patients of each education level have lower survival times than expected given ecog performance and psa levels?
+Order by highest probability
+
+[source,iql]
+----
+SELECT education, MEDIAN(probability_shorter_survival) as prob_shorter_survival
+FROM SELECT
+    PROBABILITY OF log_time_to_outcome > log_time_to_outcome
+      UNDER model
+      GIVEN bmi AND log_psa_baseline
+      AS probability_shorter_survival,
+	education
+  FROM (SELECT * FROM data WHERE log_time_to_outcome IS NOT NULL)
+GROUP BY education
+ORDER BY prob_shorter_survival DESC
+----
+
+Probability of death in the study sample
+
+[source,iql]
+----
+SELECT AVG(prob_death) as prob_death_avg 
+FROM SELECT
+    PROBABILITY OF health_outcome = "death"
+      UNDER model
+        GIVEN age AND education AND region AND employment_status AND insurance_coverage
+    as prob_death
+FROM SELECT * FROM data
+----
+
+Poststratify to general US population using claims data
+
+[source,iql]
+----
+SELECT AVG(prob_death) as prob_death_avg 
+FROM SELECT
+    PROBABILITY OF health_outcome = "death"
+      UNDER model
+        GIVEN age AND education AND region AND employment_status AND insurance_coverage
+    as prob_death
+FROM SELECT * FROM meps_data
+----

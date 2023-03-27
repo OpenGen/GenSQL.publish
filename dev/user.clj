@@ -36,7 +36,7 @@
 
 (defn new-system
   []
-    (let [model-path "examples/real_world_data.json"
+    (let [model-path "examples/real_world_data_sample0.json"
       schema-path "examples/schema_real_world_data.edn"
       data-path "examples/real_world_data.csv"
       data (iql_io/slurp-csv data-path)

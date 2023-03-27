@@ -1,0 +1,126 @@
+= Clinical trials synthetic control arm with InferenceQL
+
+Show me 5 rows from the data
+
+[source,iql]
+----
+SELECT * FROM data LIMIT 5
+----
+
+Look at the clinical trial's population distribution
+
+[source,iql]
+----
+SELECT AVG(log_time) as log_time
+FROM SELECT * FROM data
+WHERE censored = 1
+----
+
+
+
+[source,iql]
+----
+SELECT censored, COUNT(*)
+FROM SELECT * FROM data
+GROUP BY censored
+----
+
+
+[source,iql]
+----
+SELECT stage, COUNT(*)
+FROM SELECT * FROM data
+GROUP BY stage
+ORDER BY stage
+----
+
+How well does the model capture that distribution?
+
+[source,iql]
+----
+SELECT * FROM
+SELECT AVG(log_time) as log_time
+FROM (SELECT * FROM GENERATE
+    log_time,
+    log_psa
+  UNDER model
+  GIVEN censored = "1"
+LIMIT 1000)
+----
+
+[source,iql]
+----
+SELECT censored, COUNT(*)
+FROM (SELECT * FROM GENERATE
+    censored
+  UNDER model
+LIMIT 1800)
+GROUP BY censored
+----
+
+
+[source,iql]
+----
+SELECT stage, COUNT(*)
+FROM (SELECT * FROM GENERATE
+  stage
+  UNDER model
+LIMIT 1800)
+GROUP BY stage
+ORDER BY stage
+----
+
+We run a new experiment, and are interested in using the previous experiment's
+control arm to create a synthetic control for it. Looking at the ground truth
+control though, we can see its population has a significantly different distribution
+to that of the previous experiment.
+
+
+[source,iql]
+----
+SELECT AVG(log_time) as log_time
+FROM SELECT * FROM new_data
+WHERE censored = 1
+----
+
+[source,iql]
+----
+SELECT censored, COUNT(*)
+FROM SELECT * FROM new_data
+GROUP BY censored
+----
+
+[source,iql]
+----
+SELECT stage, COUNT(*)
+FROM SELECT * FROM new_data
+GROUP BY stage
+ORDER BY stage
+----
+
+
+Poststratify
+
+[source,iql]
+----
+SELECT AVG(prob_censored) as prob_censored FROM
+SELECT
+  PROBABILITY OF censored = "1" 
+  UNDER model
+  GIVEN gleason_grade AND log_bilirubin AND 
+    log_ast AND log_alt AND log_psa AND agegrp
+  AS prob_censored
+	FROM SELECT * FROM new_data
+----
+
+[source,iql]
+----
+SELECT AVG(prob_censored) as prob_censored FROM
+SELECT
+  PROBABILITY OF censored = "1"
+  UNDER model
+  GIVEN gleason_grade AND log_bilirubin AND
+    log_ast AND log_alt AND log_psa AND agegrp
+  AS prob_censored
+	FROM SELECT * FROM new_data
+----
