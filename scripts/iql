@@ -1,0 +1,11 @@
+#!/bin/bash
+
+workdir="$PWD"
+
+docker run \
+       --ipc host \
+       --interactive --tty --rm \
+       --workdir $workdir \
+       --volume $workdir:$workdir \
+       --publish 8080:8080 \
+       probcomp/inferenceql.publish "$@"

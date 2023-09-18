@@ -2,8 +2,7 @@
   (:gen-class)
   (:import [clojure.lang ExceptionInfo]
            [java.io File InputStream PushbackReader]
-           [java.util Date]
-           [org.jsoup Jsoup])
+           [java.util Date])
   (:require [babashka.cli :as cli]
             [babashka.fs :as fs]
             [borkdude.dynaload :as dynaload]
@@ -165,7 +164,7 @@
               :require true
               :coerce coerce-path
               :validate (every-pred fs/exists? file?)}
-     :language {:desc "Query lanaguage. Can be strict or permissive."
+     :language {:desc "Query language. Can be strict or permissive."
                 :ref "<lang>"
                 :default "strict"
                 :validate #{"strict" "permissive"}}
@@ -216,7 +215,8 @@
   (if (or (empty? args)
           (contains? (set args) "--help"))
     (println (cli/format-opts opts))
-    (let [{:keys [db path schema language port]}
+    (let [{:keys [db path schema language port browse?]
+           :or {browse? false}}
           (cli/parse-opts args opts)
 
           execute (case (name language)
@@ -231,4 +231,7 @@
           system (jetty-server :handler handler :port port)]
       (component/start system)
       ;; Include a unique query string parameter to bust the browser's cache.
-      (browse/browse-url (format "http://localhost:%s?rel=%s" port (now-ms))))))
+      (let [url (format "http://localhost:%s?rel=%s" port (now-ms))]
+        (if browse?
+          (browse/browse-url url)
+          (println "Server launched at: " url))))))

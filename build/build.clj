@@ -40,7 +40,8 @@
                         (worktree-dirty?)
                         (conj "DIRTY"))
                       (string/join "-"))]
-    (format "%s/%s.jar" target filename)))
+    #_(format "%s/%s.jar" target filename)
+    (format "%s/%s.jar" target (name lib))))
 
 (defn compile-clj
   [opts]

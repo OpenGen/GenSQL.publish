@@ -37,7 +37,7 @@ clojure -M:run --help
 
 ### Including SPPL support
 
-[inferenceql.gpm.sppl](https://github.com/inferenceql/inferenceql.gpm.sppl) is not included as a dependency by default. If you intend to use SPPL models you will want to provide the `sppl` alias when either launching the REPL or running build commands. 
+[inferenceql.gpm.sppl](https://github.com/inferenceql/inferenceql.gpm.sppl) is not included as a dependency by default. If you intend to use SPPL models you will want to provide the `sppl` alias when either launching the REPL or running build commands.
 
 If you intend to query SPPL models you will need to have a Python environment with SPPL installed into it in such a way that [libpython-clj](https://github.com/clj-python/libpython-clj) can find it. The easiest way to use that is to start the inferenceql.gpm.sppl Nix development shell before running publish.
 

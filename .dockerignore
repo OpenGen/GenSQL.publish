@@ -1,0 +1,6 @@
+.git
+Dockerfile
+scripts
+target
+node_modules
+examples

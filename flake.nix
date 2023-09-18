@@ -13,6 +13,7 @@
           buildInputs = with pkgs; [
             clj-kondo
             clojure
+            openjdk11
             nodejs-18_x
             pkgs.nodePackages.pnpm
           ];
