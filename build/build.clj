@@ -27,7 +27,6 @@
    :main 'inferenceql.publish
    :target "target"
    :clojure-src-dirs ["src"]
-   :java-src-dirs ["java"]
    :version (current-sha :short true)
    :basis (build/create-basis)})
 
@@ -43,15 +42,6 @@
                       (string/join "-"))]
     (format "%s/%s.jar" target filename)))
 
-(defn compile-java
-  [opts]
-  (with-reporting "Compiling Java files"
-    (let [{:keys [basis java-src-dirs] :as opts} (merge default-opts opts)]
-      (build/javac {:src-dirs java-src-dirs
-                    :class-dir (class-dir opts)
-                    :basis basis})))
-  opts)
-
 (defn compile-clj
   [opts]
   (with-reporting "Compiling Clojure files"
@@ -61,36 +51,19 @@
                           :basis basis})
       opts)))
 
-(defn compile-cljs
-  [opts]
-  (let [{:keys [target] :as opts} (merge default-opts opts)
-        working-dir (str target "/js")
-        cljsbuild-out-file (str working-dir "/index.js")]
-    (with-reporting "Compiling ClojureScript files"
-      (let [process-params (build/java-command (assoc opts
-                                                      :main 'clojure.main
-                                                      :main-args ["-m" "cljs.main"
-                                                                  "-co" "build.edn"
-                                                                  "-d" working-dir
-                                                                  "-o" cljsbuild-out-file
-                                                                  "-O" "advanced"
-                                                                  "-c"]))
-            {:keys [exit]} (build/process process-params)]
-        (when-not (zero? exit)
-          (throw (ex-info (str "ClojureScript compilation failed, working-dir preserved: "
-                               (.toString working-dir))
-                          {})))))
-    (assoc opts :bundler-input cljsbuild-out-file)))
-
 (defn bundle-js
   [opts]
   (let [{:keys [bundler-input bundler-outfile]} (merge default-opts opts)
+        bundler-input (or bundler-input
+                          "js/main.js")
         bundler-outfile (or bundler-outfile
-                           (str (class-dir opts) "/js/main.js"))]
+                            (str (class-dir opts) "/js/inferenceql.publish.js"))]
     (with-reporting "Bundling JavaScript files"
       (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
                                                           "--bundle"
                                                           "--format=iife"
+                                                          "--global-name=inferenceql.publish"
+                                                          "--sourcemap"
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
           (throw (ex-info (str "JavaScript bundling failed")
@@ -126,8 +99,6 @@
   [opts]
   (-> opts
       (copy-css)
-      (compile-java)
-      (compile-cljs)
       (bundle-js))
   opts)
 
