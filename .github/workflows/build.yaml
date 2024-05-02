@@ -28,15 +28,14 @@ jobs:
           path: node_modules
           key: gitlibs-${{ hashFiles('package.json', 'pnpm-lock.json') }}
 
-
       - name: Prepare Nix shell
         run: nix develop -c bash -c ':'
 
       - name: Prepare JavaScript dependencies
         run: nix develop -c pnpm install --no-frozen-lockfile
 
-      - name: Prepare Clojure dependencies
+      - name: Prepare Clojure test dependencies
         run: nix develop -c clojure -A:test -P
 
-      - name: Prepare Clojure dependencies
+      - name: Build Clojure uberjar
         run: nix develop -c clojure -X:build uberjar
