@@ -4,10 +4,10 @@
             [clojure.java.io :as io]
             [clojure.tools.namespace.repl :as repl]
             [com.stuartsierra.component :as component]
-            [inferenceql.inference.gpm :as gpm]
-            [inferenceql.publish :as publish]
-            [inferenceql.query.permissive :as permissive]
-            #_[inferenceql.query.strict :as strict]))
+            [gensql.inference.gpm :as gpm]
+            [gensql.publish :as publish]
+            [gensql.query.permissive :as permissive]
+            #_[gensql.query.strict :as strict]))
 
 (def system nil)
 

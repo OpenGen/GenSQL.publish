@@ -1,11 +1,11 @@
-# inferenceql.publish
-![tests](https://github.com/InferenceQL/inferenceql.publish/workflows/tests/badge.svg)
-![linter](https://github.com/InferenceQL/inferenceql.publish/workflows/linter/badge.svg)
+# GenSQL.publish
+![tests](https://github.com/OpenGen/GenSQL.publish/workflows/tests/badge.svg)
+![linter](https://github.com/OpenGen/GenSQL.publish/workflows/linter/badge.svg)
 
 ## Usage
 
 ``` shell
-java -jar inferenceql.publish.jar --help
+java -jar gensql.publish.jar --help
 ```
 
 ## Developing
@@ -37,16 +37,16 @@ clojure -M:run --help
 
 ### Including SPPL support
 
-[inferenceql.gpm.sppl](https://github.com/inferenceql/inferenceql.gpm.sppl) is not included as a dependency by default. If you intend to use SPPL models you will want to provide the `sppl` alias when either launching the REPL or running build commands. 
+[gensql.gpm.sppl](https://github.com/OpenGen/GenSQL.gpm.sppl) is not included as a dependency by default. If you intend to use SPPL models you will want to provide the `sppl` alias when either launching the REPL or running build commands. 
 
-If you intend to query SPPL models you will need to have a Python environment with SPPL installed into it in such a way that [libpython-clj](https://github.com/clj-python/libpython-clj) can find it. The easiest way to use that is to start the inferenceql.gpm.sppl Nix development shell before running publish.
+If you intend to query SPPL models you will need to have a Python environment with SPPL installed into it in such a way that [libpython-clj](https://github.com/clj-python/libpython-clj) can find it. The easiest way to use that is to start the gensql.gpm.sppl Nix development shell before running publish.
 
 ``` shell
-nix develop github:inferenceql/inferenceql.gpm.sppl -c java -jar inferenceql.publish.jar --help
+nix develop github:OpenGen/GenSQL.gpm.sppl -c java -jar gensql.publish.jar --help
 ```
 
 ``` shell
-nix develop github:inferenceql/inferenceql.gpm.sppl -c clj -A:dev:sppl
+nix develop github:OpenGen/GenSQL.gpm.sppl -c clj -A:dev:sppl
 ```
 
 ### Building a JAR file

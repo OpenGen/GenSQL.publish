@@ -1,4 +1,4 @@
-(ns inferenceql.publish.asciidoc
+(ns gensql.publish.asciidoc
   (:import [java.util HashMap]
            [org.asciidoctor Asciidoctor$Factory]
            [org.asciidoctor Options]
@@ -53,9 +53,9 @@
       (process [parent reader attributes]
         (fn this parent reader attributes)))))
 
-(def iql-block-processor
+(def gensql-block-processor
   (block-processor
-   :name "iql"
+   :name "gensql"
    :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
    :content-model ContentModel/SIMPLE
    :fn (fn [this parent reader _attributes]
@@ -65,14 +65,14 @@
            (doto parent
              (.append (.createBlock this parent "pass" (hiccup/html [:div {:id id} [:pre [:code query]]])))
              (.append (.createBlock this parent "pass" (hiccup/html [:script {:type "text/javascript"}
-                                                                     (str "inferenceql.publish.mount('Query', " props ", " (json/write-str id) ");" )]))))))))
+                                                                     (str "gensql.publish.mount('Query', " props ", " (json/write-str id) ");" )]))))))))
 
 (def ^:private asciidoctor
   (let [asciidoctor (Asciidoctor$Factory/create)
         extension-registry (.javaExtensionRegistry asciidoctor)]
-    (.docinfoProcessor extension-registry (add-script-processor "js/inferenceql.publish.js"))
+    (.docinfoProcessor extension-registry (add-script-processor "js/gensql.publish.js"))
     (.docinfoProcessor extension-registry (add-stylesheet-processor "styles/github.css"))
-    (.block extension-registry iql-block-processor)
+    (.block extension-registry gensql-block-processor)
     asciidoctor))
 
 (defrecord Asciidoctor []

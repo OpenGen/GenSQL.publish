@@ -23,8 +23,8 @@
       (not)))
 
 (def default-opts
-  {:lib 'inferenceql/inferenceql.publish
-   :main 'inferenceql.publish
+  {:lib 'OpenGen/gensql.publish
+   :main 'gensql.publish
    :target "target"
    :clojure-src-dirs ["src"]
    :version (current-sha :short true)
@@ -57,12 +57,12 @@
         bundler-input (or bundler-input
                           "js/main.js")
         bundler-outfile (or bundler-outfile
-                            (str (class-dir opts) "/js/inferenceql.publish.js"))]
+                            (str (class-dir opts) "/js/gensql.publish.js"))]
     (with-reporting "Bundling JavaScript files"
       (let [{:keys [exit]} (build/process {:command-args ["pnpm" "esbuild" bundler-input
                                                           "--bundle"
                                                           "--format=iife"
-                                                          "--global-name=inferenceql.publish"
+                                                          "--global-name=gensql.publish"
                                                           "--sourcemap"
                                                           (str "--outfile=" bundler-outfile)]})]
         (when-not (zero? exit)
