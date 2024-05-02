@@ -1,4 +1,4 @@
-(ns inferenceql.publish
+(ns gensql.publish
   (:gen-class)
   (:import [clojure.lang ExceptionInfo]
            [java.io File InputStream PushbackReader]
@@ -15,11 +15,11 @@
             [clojure.string :as string]
             [cognitect.anomalies :as-alias anomalies]
             [com.stuartsierra.component :as component]
-            [inferenceql.inference.gpm :as gpm]
-            [inferenceql.publish.asciidoc :as asciidoc]
-            [inferenceql.query.permissive :as permissive]
-            [inferenceql.query.relation :as relation]
-            [inferenceql.query.strict :as strict]
+            [gensql.inference.gpm :as gpm]
+            [gensql.publish.asciidoc :as asciidoc]
+            [gensql.query.permissive :as permissive]
+            [gensql.query.relation :as relation]
+            [gensql.query.strict :as strict]
             [instaparse.failure :as failure]
             [reitit.ring :as ring]
             [reitit.ring.middleware.exception :as exception]
@@ -204,10 +204,10 @@
 (defn sppl-read-string
   [s]
   (try
-    (let [read-string (dynaload/dynaload 'inferenceql.gpm.sppl/read-string)]
+    (let [read-string (dynaload/dynaload 'gensql.gpm.sppl/read-string)]
       (read-string s))
     (catch ExceptionInfo e
-      (throw (ex-info "Could not resolve inferenceql.gpm.sppl/read-string. Is inferenceql.gpm.sppl on the classpath?"
+      (throw (ex-info "Could not resolve gensql.gpm.sppl/read-string. Is gensql.gpm.sppl on the classpath?"
                       {}
                       e)))))
 
@@ -222,7 +222,9 @@
           execute (case (name language)
                     "permissive" permissive/query
                     "strict" strict/query)
-          db (atom (edn/read {:readers (assoc gpm/readers 'inferenceql.gpm.spe/SPE sppl-read-string)}
+          db (atom (edn/read {:readers (assoc gpm/readers
+                                              'gensql.gpm.spe/SPE sppl-read-string
+                                              'inferenceql.gpm.spe/SPE sppl-read-string)}
                              (PushbackReader. (io/reader db))))
           handler (app :db db
                        :path path

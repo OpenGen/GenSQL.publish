@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const components = require('@inferenceql/inferenceql.react');
+const components = require('@OpenGen/GenSQL.react');
 
 const execute = function(s) {
   return fetch('/api/query', {

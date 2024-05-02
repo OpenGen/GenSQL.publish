@@ -1,4 +1,4 @@
-{:main inferenceql.publish.client
+{:main gensql.publish.client
  :output-to "resources/js/index.js"
  :output-dir "resources/js"
  :asset-path "js"

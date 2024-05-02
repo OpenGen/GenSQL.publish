@@ -7,9 +7,9 @@
         com.cognitect/transit-cljs {:mvn/version "0.8.280"}
         com.stuartsierra/component {:mvn/version "1.1.0"}
         hiccup/hiccup {:mvn/version "1.0.5"}
-        io.github.inferenceql/inferenceql.gpm.sppl {:git/sha "52f8316e094b3644709dccde8f0a935f9b55f187"}
-        io.github.inferenceql/inferenceql.inference {:git/sha "27b1b6c34830b98c2c7258b5577f0b7611538355"}
-        io.github.inferenceql/inferenceql.query {:git/sha "a85bba882016a06b006abf7bf43f53b4cfa4465c"}
+        io.github.OpenGen/GenSQL.gpm.sppl {:git/sha "718de40878766bb8d08acc2b429a76ed662a1352"}
+        io.github.OpenGen/GenSQL.inference {:git/sha "689fe740dead93f3ba349a88efa52f2544aa138b"}
+        io.github.OpenGen/GenSQL.query {:git/sha "32adb67ff07c1bba67255384adbe30d80d4e0f9f"}
         lambdaisland/fetch {:mvn/version "1.0.41"}
         metosin/reitit {:mvn/version "0.5.18"}
         org.asciidoctor/asciidoctorj {:mvn/version "2.5.3"}
@@ -28,8 +28,8 @@
                    :ns-default build}
            :dev {:extra-paths ["dev"]
                  :extra-deps {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}
-           :run {:main-opts ["-m" "inferenceql.publish"]}
-           :sppl {:extra-deps {io.github.inferenceql/inferenceql.gpm.sppl {:git/sha "594d4bced407826129723e84907954ebab71b315"}}}
+           :run {:main-opts ["-m" "gensql.publish"]}
+           :sppl {:extra-deps {io.github.OpenGen/GenSQL.gpm.sppl {:git/sha "718de40878766bb8d08acc2b429a76ed662a1352"}}}
            :test {:extra-paths ["test"]
                   :extra-deps {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
                                org.clojure/test.check {:mvn/version "0.10.0"}}
