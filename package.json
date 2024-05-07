@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.4",
-    "@inferenceql/inferenceql.react": "inferenceql/inferenceql.react#b54a02e5dad1a26bfa73873262f411f8b3019974",
+    "@OpenGen/GenSQL.react": "OpenGen/GenSQL.react#d218e25fecb2aa31661639b879662045ebb0bc33",
     "highlight.js": "^11.5.1",
     "prop-types": "^15.8.1",
     "react": "^17.0",

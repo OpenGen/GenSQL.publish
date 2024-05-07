@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Nix
-        uses: cachix/install-nix-action@v16
+        uses: cachix/install-nix-action@v25
 
       - name: Checkout repository
         uses: actions/checkout@v2
