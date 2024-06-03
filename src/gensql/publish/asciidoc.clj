@@ -53,26 +53,28 @@
       (process [parent reader attributes]
         (fn this parent reader attributes)))))
 
-(def gensql-block-processor
+(defn gensql-block-processor
+  [name]
   (block-processor
-   :name "gensql"
-   :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
-   :content-model ContentModel/SIMPLE
-   :fn (fn [this parent reader _attributes]
-         (let [id (str (gensym "publish"))
-               query (.read reader)
-               props (json/write-str {:initialQuery query})]
-           (doto parent
-             (.append (.createBlock this parent "pass" (hiccup/html [:div {:id id} [:pre [:code query]]])))
-             (.append (.createBlock this parent "pass" (hiccup/html [:script {:type "text/javascript"}
-                                                                     (str "gensql.publish.mount('Query', " props ", " (json/write-str id) ");" )]))))))))
+    :name name
+    :contexts [Contexts/PARAGRAPH Contexts/LISTING Contexts/EXAMPLE]
+    :content-model ContentModel/SIMPLE
+    :fn (fn [this parent reader _attributes]
+          (let [id (str (gensym "publish"))
+                query (.read reader)
+                props (json/write-str {:initialQuery query})]
+            (doto parent
+                  (.append (.createBlock this parent "pass" (hiccup/html [:div {:id id} [:pre [:code query]]])))
+                  (.append (.createBlock this parent "pass" (hiccup/html [:script {:type "text/javascript"}
+                                                                          (str "gensql.publish.mount('Query', " props ", " (json/write-str id) ");")]))))))))
 
 (def ^:private asciidoctor
   (let [asciidoctor (Asciidoctor$Factory/create)
         extension-registry (.javaExtensionRegistry asciidoctor)]
     (.docinfoProcessor extension-registry (add-script-processor "js/gensql.publish.js"))
     (.docinfoProcessor extension-registry (add-stylesheet-processor "styles/github.css"))
-    (.block extension-registry gensql-block-processor)
+    (.block extension-registry (gensql-block-processor "gensql"))
+    (.block extension-registry (gensql-block-processor "iql")) ; backwards-compatibility
     asciidoctor))
 
 (defrecord Asciidoctor []
